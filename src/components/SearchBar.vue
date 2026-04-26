@@ -1,7 +1,7 @@
 <template>
   <div class="search-bar">
     <span class="search-icon">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="11" cy="11" r="8"></circle>
         <path d="m21 21-4.35-4.35"></path>
       </svg>
@@ -19,7 +19,7 @@
       @click="clearSearch"
       title="清除搜索"
     >
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M18 6 6 18"></path>
         <path d="m6 6 12 12"></path>
       </svg>
@@ -68,32 +68,40 @@ onMounted(() => {
   pointer-events: none;
   display: flex;
   align-items: center;
+  transition: color var(--transition-fast);
+}
+
+.search-bar:focus-within .search-icon {
+  color: var(--primary);
 }
 
 input {
   width: 100%;
-  padding: 10px 36px;
+  padding: 10px 36px 10px 36px;
+  font-family: var(--font-sans);
   font-size: var(--font-size-sm);
-  background-color: var(--bg-tertiary);
+  background-color: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   color: var(--text-primary);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: all var(--transition-fast);
 }
 
 input::placeholder {
   color: var(--text-muted);
+  font-style: italic;
 }
 
 input:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 0 0 3px rgba(180, 83, 9, 0.1);
+  background-color: var(--bg-primary);
 }
 
 .clear-btn {
   position: absolute;
-  right: 8px;
+  right: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -105,11 +113,11 @@ input:focus {
   border-radius: var(--radius-sm);
   color: var(--text-muted);
   cursor: pointer;
-  transition: color 0.15s ease, background-color 0.15s ease;
+  transition: all var(--transition-fast);
 }
 
 .clear-btn:hover {
   color: var(--text-primary);
-  background-color: var(--bg-secondary);
+  background-color: var(--bg-tertiary);
 }
 </style>

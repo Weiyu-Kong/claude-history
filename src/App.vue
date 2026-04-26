@@ -13,7 +13,9 @@
         />
       </aside>
 
-      <div class="resize-handle" @mousedown="startResize('left', $event)"></div>
+      <div class="resize-handle" @mousedown="startResize('left', $event)">
+        <div class="handle-line"></div>
+      </div>
 
       <aside class="panel panel-middle" :style="{ width: middlePanelWidth + 'px' }">
         <ConversationList
@@ -25,7 +27,9 @@
         />
       </aside>
 
-      <div class="resize-handle" @mousedown="startResize('right', $event)"></div>
+      <div class="resize-handle" @mousedown="startResize('right', $event)">
+        <div class="handle-line"></div>
+      </div>
 
       <main class="panel panel-right" :style="{ minWidth: rightPanelMinWidth + 'px' }">
         <MessageThread
@@ -49,17 +53,14 @@ import MessageThread from './components/MessageThread.vue';
 const projectsStore = useProjectsStore();
 const conversationsStore = useConversationsStore();
 
-// Panel dimensions
 const leftPanelWidth = ref(240);
-const middlePanelWidth = ref(280);
+const middlePanelWidth = ref(300);
 const rightPanelMinWidth = 400;
 
-// Conversation list for selected project
 const currentConversations = computed(() => {
   return projectsStore.selectedProject?.conversations || [];
 });
 
-// Handlers
 function handleProjectSelect(projectId) {
   projectsStore.selectProject(projectId);
   conversationsStore.clearActive();
@@ -77,7 +78,6 @@ function handleRefresh() {
 
 function handleProjectDelete(projectId) {
   window.electronAPI.deleteProject(projectId).then(() => {
-    // 直接从本地状态移除，不要重新扫描（重新扫描会从磁盘恢复被删除的记录）
     const index = projectsStore.projects.findIndex(p => p.id === projectId);
     if (index !== -1) {
       projectsStore.projects.splice(index, 1);
@@ -88,7 +88,6 @@ function handleProjectDelete(projectId) {
 
 function handleConversationDelete(filePath) {
   window.electronAPI.deleteConversation(filePath).then(() => {
-    // 直接从当前项目的对话列表移除
     const currentProject = projectsStore.selectedProject;
     if (currentProject && currentProject.conversations) {
       const index = currentProject.conversations.findIndex(c => c.filePath === filePath);
@@ -100,7 +99,6 @@ function handleConversationDelete(filePath) {
   });
 }
 
-// Panel resizing
 const resizing = ref(null);
 const resizeStartX = ref(0);
 const resizeStartWidth = ref(0);
@@ -111,6 +109,8 @@ function startResize(panel, event) {
   resizeStartWidth.value = panel === 'left' ? leftPanelWidth.value : middlePanelWidth.value;
   document.addEventListener('mousemove', handleResize);
   document.addEventListener('mouseup', stopResize);
+  document.body.style.cursor = 'col-resize';
+  document.body.style.userSelect = 'none';
 }
 
 function handleResize(event) {
@@ -119,10 +119,10 @@ function handleResize(event) {
 
   if (resizing.value === 'left') {
     const newWidth = resizeStartWidth.value + delta;
-    leftPanelWidth.value = Math.max(160, Math.min(400, newWidth));
+    leftPanelWidth.value = Math.max(180, Math.min(360, newWidth));
   } else if (resizing.value === 'right') {
     const newWidth = resizeStartWidth.value + delta;
-    middlePanelWidth.value = Math.max(200, Math.min(500, newWidth));
+    middlePanelWidth.value = Math.max(240, Math.min(480, newWidth));
   }
 }
 
@@ -130,9 +130,10 @@ function stopResize() {
   resizing.value = null;
   document.removeEventListener('mousemove', handleResize);
   document.removeEventListener('mouseup', stopResize);
+  document.body.style.cursor = '';
+  document.body.style.userSelect = '';
 }
 
-// Load projects on mount
 onMounted(() => {
   projectsStore.loadProjects();
 });
@@ -164,14 +165,30 @@ onMounted(() => {
 }
 
 .resize-handle {
-  width: 4px;
+  width: 8px;
   background-color: var(--border-light);
   cursor: col-resize;
-  transition: background-color 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+  transition: background-color var(--transition-fast);
 }
 
 .resize-handle:hover {
+  background-color: var(--bg-tertiary);
+}
+
+.resize-handle:hover .handle-line {
   background-color: var(--primary);
+  transform: scaleY(1.3);
+}
+
+.handle-line {
+  width: 2px;
+  height: 40px;
+  background-color: var(--border-color);
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
 }
 </style>

@@ -1,43 +1,65 @@
 <template>
   <div class="conversation-list">
     <div class="conversation-list-header">
+      <div class="header-label">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        <span>对话</span>
+      </div>
       <SearchBar :query="searchQuery" @search="handleSearch" />
     </div>
 
     <div class="conversation-list-content">
-      <SkeletonLoader v-if="loading" :count="5" height="64px" />
+      <SkeletonLoader v-if="loading" :count="5" height="72px" />
 
       <div v-else-if="!filteredConversations || filteredConversations.length === 0" class="empty-state">
+        <div class="empty-icon">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M8 15s1.5-2 4-2 4 2 4 2"></path>
+            <line x1="9" y1="9" x2="9.01" y2="9"></line>
+            <line x1="15" y1="9" x2="15.01" y2="9"></line>
+          </svg>
+        </div>
         <p>{{ searchQuery ? '没有匹配的对话' : '暂无对话' }}</p>
       </div>
 
       <ul v-else class="conversation-items">
         <li
-          v-for="conv in filteredConversations"
+          v-for="(conv, index) in filteredConversations"
           :key="conv.filePath"
           :class="['conversation-item', { active: conv.filePath === selectedId }]"
           @click="onSelect(conv)"
+          :style="{ animationDelay: index * 0.03 + 's' }"
         >
-          <div class="conv-main">
-            <span class="conv-title">{{ cleanTitle(conv.title) || 'click to show title' }}</span>
-            <span v-if="conv.fileSize > 50 * 1024 * 1024" class="large-file-warning" title="文件较大">
-              大文件
-            </span>
-          </div>
-          <div class="conv-footer">
-            <span class="conv-date">{{ formatDate(conv.updatedAt) }}</span>
-            <button class="delete-btn" @click.stop="confirmDelete(conv)" title="删除对话">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="3 6 5 6 21 6"/>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-              </svg>
-            </button>
+          <div class="conv-indicator"></div>
+          <div class="conv-content">
+            <div class="conv-main">
+              <span class="conv-title">{{ cleanTitle(conv.title) || 'click to show title' }}</span>
+              <span v-if="conv.fileSize > 50 * 1024 * 1024" class="large-file-warning">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                  <line x1="12" y1="9" x2="12" y2="13"></line>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                大文件
+              </span>
+            </div>
+            <div class="conv-footer">
+              <span class="conv-date">{{ formatDate(conv.updatedAt) }}</span>
+              <button class="delete-btn" @click.stop="confirmDelete(conv)" title="删除对话">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+              </button>
+            </div>
           </div>
         </li>
       </ul>
     </div>
 
-    <!-- Delete confirmation dialog -->
     <ConfirmDialog
       :show="showDeleteConfirm"
       title="删除对话"
@@ -73,10 +95,7 @@ const props = defineProps({
 
 const emit = defineEmits(['select', 'search', 'delete']);
 
-// Search query
 const searchQuery = ref('');
-
-// Delete confirmation state
 const showDeleteConfirm = ref(false);
 const pendingDelete = ref(null);
 
@@ -139,13 +158,25 @@ function formatDate(timestamp) {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: var(--bg-primary);
-  border-right: 1px solid var(--border-color);
+  background-color: var(--bg-secondary);
 }
 
 .conversation-list-header {
-  padding: 12px;
+  padding: 16px;
   border-bottom: 1px solid var(--border-light);
+}
+
+.header-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .conversation-list-content {
@@ -155,17 +186,32 @@ function formatDate(timestamp) {
 
 .conversation-items {
   list-style: none;
+  padding: 8px 0;
 }
 
 .conversation-item {
-  padding: 12px 16px;
+  position: relative;
+  display: flex;
+  align-items: stretch;
   cursor: pointer;
-  border-bottom: 1px solid var(--border-light);
-  transition: background-color 0.15s ease;
+  transition: background-color var(--transition-fast);
+  animation: slideIn 0.3s ease-out;
+  animation-fill-mode: both;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .conversation-item:hover {
-  background-color: var(--bg-secondary);
+  background-color: var(--bg-tertiary);
 }
 
 .conversation-item:hover .delete-btn {
@@ -174,18 +220,34 @@ function formatDate(timestamp) {
 
 .conversation-item.active {
   background-color: var(--bg-tertiary);
-  border-left: 3px solid var(--primary);
-  padding-left: 13px;
+}
+
+.conv-indicator {
+  width: 3px;
+  background: transparent;
+  transition: background-color var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.conversation-item.active .conv-indicator {
+  background: linear-gradient(to bottom, var(--primary), #F59E0B);
+}
+
+.conv-content {
+  flex: 1;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-light);
 }
 
 .conv-main {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .conv-title {
+  font-family: var(--font-sans);
   font-size: var(--font-size-sm);
   font-weight: 500;
   color: var(--text-primary);
@@ -195,9 +257,12 @@ function formatDate(timestamp) {
 }
 
 .large-file-warning {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: var(--font-size-xs);
   color: var(--color-warning);
-  background-color: rgba(202, 138, 4, 0.1);
+  background-color: rgba(180, 83, 9, 0.1);
   padding: 2px 6px;
   border-radius: var(--radius-sm);
   flex-shrink: 0;
@@ -210,6 +275,7 @@ function formatDate(timestamp) {
 }
 
 .conv-date {
+  font-family: var(--font-sans);
   font-size: var(--font-size-xs);
   color: var(--text-muted);
 }
@@ -218,34 +284,45 @@ function formatDate(timestamp) {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   background-color: transparent;
   border: none;
   border-radius: var(--radius-sm);
   color: var(--text-muted);
   cursor: pointer;
   opacity: 0;
-  transition: all 0.15s ease;
+  transition: all var(--transition-fast);
 }
 
 .conversation-item.active .delete-btn {
   opacity: 1;
-  color: var(--text-muted);
 }
 
 .delete-btn:hover {
   color: var(--color-error);
-  background-color: rgba(220, 38, 38, 0.1);
+  background-color: rgba(185, 28, 28, 0.1);
 }
 
 .empty-state {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 48px 24px;
   text-align: center;
+}
+
+.empty-icon {
   color: var(--text-muted);
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.empty-state p {
+  font-family: var(--font-display);
   font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  margin: 0;
 }
 </style>

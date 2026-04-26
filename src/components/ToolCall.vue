@@ -1,23 +1,35 @@
 <template>
   <div class="tool-call">
     <button class="toggle-btn" @click="expanded = !expanded">
-      <span class="toggle-icon">{{ expanded ? '▼' : '▶' }}</span>
-      <span class="tool-name">Tool: {{ toolName }}</span>
-      <span v-if="lineCount > 0" class="line-count">({{ lineCount }} lines)</span>
+      <span class="toggle-icon">
+        <svg v-if="expanded" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 9l-7 7-7-7"></path>
+        </svg>
+        <svg v-else width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 5l7 7-7 7"></path>
+        </svg>
+      </span>
+      <span class="tool-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+          <line x1="8" y1="21" x2="16" y2="21"></line>
+          <line x1="12" y1="17" x2="12" y2="21"></line>
+        </svg>
+        {{ toolName }}
+      </span>
+      <span v-if="lineCount > 0" class="line-count">{{ lineCount }} 行</span>
     </button>
     <div v-if="expanded" class="tool-content">
-      <!-- Special formatting for Bash commands with JSON structure -->
       <div v-if="isBashJsonCommand" class="bash-command-wrapper">
         <div class="bash-field">
-          <span class="bash-label">Command</span>
+          <span class="bash-label">命令</span>
           <pre class="bash-command"><code>{{ parsedCommand }}</code></pre>
         </div>
         <div v-if="parsedDescription" class="bash-field">
-          <span class="bash-label">Description</span>
+          <span class="bash-label">描述</span>
           <span class="bash-description">{{ parsedDescription }}</span>
         </div>
       </div>
-      <!-- Default JSON display for other tools -->
       <pre v-else class="code-block"><code>{{ inputText }}</code></pre>
     </div>
   </div>
@@ -47,7 +59,7 @@ const lineCount = computed(() => {
     return lines > 1 ? lines : 0;
   }
   if (typeof input === 'object' && input !== null) {
-    return 1; // Single-line JSON object
+    return 1;
   }
   return 0;
 });
@@ -63,7 +75,6 @@ const inputText = computed(() => {
   return '';
 });
 
-// Check if this is a Bash command with {command, description} structure
 const isBashJsonCommand = computed(() => {
   const name = toolName.value.toLowerCase();
   if (name !== 'bash') return false;
@@ -115,7 +126,6 @@ const parsedDescription = computed(() => {
   return '';
 });
 
-// Expand all
 function expandAll() {
   expanded.value = true;
 }
@@ -125,18 +135,19 @@ defineExpose({ expandAll });
 
 <style scoped>
 .tool-call {
-  margin-top: 8px;
+  margin-top: 12px;
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   overflow: hidden;
+  background: var(--bg-secondary);
 }
 
 .toggle-btn {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
+  gap: 10px;
+  padding: 10px 14px;
   background-color: var(--bg-tertiary);
   border: none;
   cursor: pointer;
@@ -144,6 +155,7 @@ defineExpose({ expandAll });
   font-size: var(--font-size-sm);
   color: var(--text-primary);
   text-align: left;
+  transition: all var(--transition-fast);
 }
 
 .toggle-btn:hover {
@@ -151,24 +163,35 @@ defineExpose({ expandAll });
 }
 
 .toggle-icon {
-  font-size: 10px;
+  display: flex;
+  align-items: center;
   color: var(--text-muted);
+  transition: transform var(--transition-fast);
 }
 
-.tool-name {
-  font-weight: 500;
+.tool-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
   color: var(--primary);
+  background: linear-gradient(135deg, rgba(180, 83, 9, 0.1), rgba(245, 158, 11, 0.1));
+  padding: 3px 10px;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
 }
 
 .line-count {
   color: var(--text-muted);
+  font-size: var(--font-size-xs);
+  margin-left: auto;
 }
 
 .tool-content {
-  padding: 12px;
+  padding: 14px;
   background-color: var(--bg-primary);
   border-top: 1px solid var(--border-color);
-  max-height: 400px;
+  max-height: 500px;
   overflow-y: auto;
 }
 
@@ -179,22 +202,23 @@ defineExpose({ expandAll });
   white-space: pre-wrap;
   word-break: break-word;
   color: var(--text-primary);
+  line-height: 1.6;
 }
 
-/* Bash command special styling */
 .bash-command-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .bash-field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .bash-label {
+  font-family: var(--font-sans);
   font-size: var(--font-size-xs);
   font-weight: 600;
   color: var(--text-muted);
@@ -204,15 +228,16 @@ defineExpose({ expandAll });
 
 .bash-command {
   margin: 0;
-  padding: 12px;
+  padding: 14px;
   background-color: var(--bg-tertiary);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--primary);
   font-family: var(--font-mono);
   font-size: var(--font-size-sm);
   white-space: pre-wrap;
   word-break: break-word;
   color: var(--text-primary);
-  line-height: 1.5;
+  line-height: 1.6;
   overflow-x: auto;
 }
 

@@ -1,7 +1,14 @@
 <template>
   <div class="project-list">
     <div class="project-list-header">
-      <h2>项目列表</h2>
+      <div class="header-title">
+        <div class="header-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </div>
+        <h2>项目</h2>
+      </div>
       <button class="refresh-btn" @click="$emit('refresh')" :disabled="loading" title="刷新项目">
         <svg :class="{ spinning: loading }" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M23 4v6h-6M1 20v-6h6"/>
@@ -11,32 +18,48 @@
     </div>
 
     <div class="project-list-content">
-      <SkeletonLoader v-if="loading" :count="5" height="48px" />
+      <SkeletonLoader v-if="loading" :count="5" height="56px" />
 
       <div v-else-if="error" class="error-state">
-        <span class="error-icon">!</span>
+        <div class="error-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+        </div>
         <p>{{ error }}</p>
         <button class="retry-btn" @click="$emit('refresh')">重试</button>
       </div>
 
       <div v-else-if="!projects || projects.length === 0" class="empty-state">
+        <div class="empty-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </div>
         <p>未找到项目</p>
         <p class="empty-hint">请确保 Claude Code 已创建对话记录</p>
       </div>
 
       <ul v-else class="project-items">
         <li
-          v-for="project in projects"
+          v-for="(project, index) in projects"
           :key="project.id"
           :class="['project-item', { active: project.id === selectedId }]"
           @click="$emit('select', project.id)"
-          @contextmenu.prevent="showContextMenu($event, project)"
+          :style="{ animationDelay: index * 0.04 + 's' }"
         >
+          <div class="project-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </div>
           <div class="project-info">
             <span class="project-name">{{ getDisplayName(project) }}</span>
             <span class="project-path">{{ getShortPath(project.path) }}</span>
           </div>
-          <div class="project-actions">
+          <div class="project-meta">
             <span class="project-count">{{ project.conversations?.length || 0 }}</span>
             <button class="delete-btn" @click.stop="confirmDelete(project)" title="删除项目">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -49,7 +72,6 @@
       </ul>
     </div>
 
-    <!-- Delete confirmation dialog -->
     <ConfirmDialog
       :show="showDeleteConfirm"
       title="删除项目"
@@ -87,7 +109,6 @@ const props = defineProps({
 
 const emit = defineEmits(['select', 'refresh', 'delete']);
 
-// Delete confirmation state
 const showDeleteConfirm = ref(false);
 const pendingDelete = ref(null);
 
@@ -109,11 +130,6 @@ function handleDelete() {
   pendingDelete.value = null;
 }
 
-function showContextMenu(event, project) {
-  // Context menu can be added later if needed
-}
-
-// Format project name - extract last two segments separated by hyphen
 function getDisplayName(project) {
   if (project.name) {
     const parts = project.name.split('-');
@@ -148,13 +164,33 @@ function getShortPath(path) {
   justify-content: space-between;
   padding: 16px;
   border-bottom: 1px solid var(--border-light);
+  background: linear-gradient(to right, var(--bg-secondary), var(--bg-primary));
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, var(--primary), #F59E0B);
+  border-radius: var(--radius-md);
+  color: white;
 }
 
 .project-list-header h2 {
-  font-size: var(--font-size-lg);
+  font-family: var(--font-display);
+  font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--text-primary);
   margin: 0;
+  letter-spacing: -0.01em;
 }
 
 .refresh-btn {
@@ -169,7 +205,7 @@ function getShortPath(path) {
   border-radius: var(--radius-md);
   color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all var(--transition-fast);
 }
 
 .refresh-btn:hover:not(:disabled) {
@@ -207,37 +243,70 @@ function getShortPath(path) {
 .project-item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 12px;
+  gap: 10px;
+  padding: 10px 12px;
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: all var(--transition-fast);
+  animation: slideIn 0.3s ease-out;
+  animation-fill-mode: both;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .project-item:hover {
   background-color: var(--bg-tertiary);
 }
 
-.project-item:hover .project-actions {
+.project-item:hover .project-meta {
   opacity: 1;
 }
 
 .project-item.active {
-  background-color: var(--primary);
+  background: linear-gradient(135deg, var(--primary) 0%, #6366F1 100%);
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.project-item.active .project-icon {
+  background: rgba(255, 255, 255, 0.2);
   color: white;
 }
 
 .project-item.active .project-count {
-  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
 }
 
 .project-item.active .delete-btn {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .project-item.active .delete-btn:hover {
   color: white;
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.project-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
 }
 
 .project-info {
@@ -249,38 +318,52 @@ function getShortPath(path) {
 }
 
 .project-name {
+  font-family: var(--font-sans);
   font-size: var(--font-size-sm);
   font-weight: 500;
+  color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.project-item.active .project-name {
+  color: white;
+}
+
 .project-path {
+  font-family: var(--font-sans);
   font-size: var(--font-size-xs);
   color: var(--text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  opacity: 0.7;
 }
 
 .project-item.active .project-path {
   color: rgba(255, 255, 255, 0.7);
 }
 
+.project-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.project-item.active .project-meta {
+  opacity: 1;
+}
+
 .project-count {
+  font-family: var(--font-mono);
   font-size: var(--font-size-xs);
   color: var(--text-muted);
   background-color: var(--bg-tertiary);
   padding: 2px 8px;
   border-radius: var(--radius-full);
   flex-shrink: 0;
-}
-
-.project-actions {
-  opacity: 0;
-  transition: opacity 0.15s ease;
 }
 
 .delete-btn {
@@ -294,63 +377,84 @@ function getShortPath(path) {
   border-radius: var(--radius-sm);
   color: var(--text-muted);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all var(--transition-fast);
 }
 
 .delete-btn:hover {
   color: var(--color-error);
-  background-color: rgba(220, 38, 38, 0.1);
+  background-color: rgba(185, 28, 28, 0.1);
 }
 
-.empty-state,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.empty-icon {
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  opacity: 0.4;
+}
+
+.empty-state p {
+  font-family: var(--font-display);
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  margin: 0 0 4px 0;
+}
+
+.empty-hint {
+  font-size: var(--font-size-xs);
+  opacity: 0.7;
+}
+
 .error-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 48px 24px;
   text-align: center;
-  color: var(--text-muted);
-}
-
-.empty-hint {
-  font-size: var(--font-size-xs);
-  margin-top: 8px;
-  opacity: 0.7;
 }
 
 .error-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  background-color: var(--color-error);
-  color: white;
-  border-radius: 50%;
-  font-weight: bold;
-  margin-bottom: 12px;
+  width: 48px;
+  height: 48px;
+  background-color: rgba(185, 28, 28, 0.1);
+  border-radius: var(--radius-full);
+  color: var(--color-error);
+  margin-bottom: 16px;
 }
 
 .error-state p {
+  font-family: var(--font-sans);
   font-size: var(--font-size-sm);
   color: var(--color-error);
-  margin: 0 0 12px 0;
+  margin: 0 0 16px 0;
 }
 
 .retry-btn {
-  padding: 6px 16px;
+  padding: 8px 20px;
+  font-family: var(--font-sans);
   font-size: var(--font-size-sm);
-  color: var(--primary);
+  font-weight: 500;
+  color: var(--color-error);
   background-color: transparent;
-  border: 1px solid var(--primary);
+  border: 1px solid var(--color-error);
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all var(--transition-fast);
 }
 
 .retry-btn:hover {
-  background-color: var(--primary);
+  background-color: var(--color-error);
   color: white;
 }
 </style>

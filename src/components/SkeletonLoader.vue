@@ -4,7 +4,7 @@
       v-for="i in count"
       :key="i"
       class="skeleton-item"
-      :style="{ height }"
+      :style="{ height, animationDelay: (i - 1) * 0.1 + 's' }"
     ></div>
   </div>
 </template>
@@ -26,19 +26,20 @@ defineProps({
 .skeleton-loader {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
+  padding: 8px 0;
 }
 
 .skeleton-item {
   background: linear-gradient(
     90deg,
-    var(--bg-tertiary) 25%,
+    var(--bg-tertiary) 0%,
     var(--bg-secondary) 50%,
-    var(--bg-tertiary) 75%
+    var(--bg-tertiary) 100%
   );
   background-size: 200% 100%;
-  border-radius: var(--radius-sm);
-  animation: shimmer 1.5s infinite ease-in-out;
+  border-radius: var(--radius-md);
+  animation: shimmer 1.8s ease-in-out infinite;
 }
 
 @keyframes shimmer {

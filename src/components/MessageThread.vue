@@ -1,37 +1,62 @@
 <template>
   <div class="message-thread">
     <div v-if="loading" class="thread-loading">
-      <SkeletonLoader :count="4" height="80px" />
+      <SkeletonLoader :count="4" height="100px" />
     </div>
 
     <div v-else-if="!conversation" class="thread-empty">
-      <div class="empty-icon">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+      <div class="empty-illustration">
+        <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+          <circle cx="60" cy="60" r="50" stroke="currentColor" stroke-width="2" stroke-dasharray="4 4" opacity="0.3"/>
+          <path d="M40 50C40 44.477 44.477 40 50 40H70C75.523 40 80 44.477 80 50V65C80 70.523 75.523 75 70 75H55L45 85V75H50C44.477 75 40 70.523 40 65V50Z" stroke="currentColor" stroke-width="2" opacity="0.5"/>
+          <circle cx="48" cy="57" r="3" fill="currentColor" opacity="0.4"/>
+          <circle cx="60" cy="57" r="3" fill="currentColor" opacity="0.4"/>
+          <circle cx="72" cy="57" r="3" fill="currentColor" opacity="0.4"/>
         </svg>
       </div>
-      <p>选择一个对话查看历史记录</p>
+      <p class="empty-text">选择一个对话查看历史记录</p>
+      <p class="empty-hint">从左侧选择一个项目及其对话</p>
     </div>
 
     <div v-else class="thread-container">
       <div class="thread-header">
         <div class="thread-title-row">
+          <div class="title-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </div>
           <h2 class="thread-title">{{ cleanTitle(conversation.title) || '未命名对话' }}</h2>
-          <span class="message-count">{{ messageCount }} 条消息</span>
         </div>
-        <div class="header-actions">
-          <span v-if="skippedCount > 0" class="skipped-indicator" title="部分消息已跳过">
+        <div class="header-meta">
+          <span class="skipped-indicator" v-if="skippedCount > 0">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
             {{ skippedCount }} 条已跳过
           </span>
-          <button class="action-btn" @click="expandAll" :disabled="allExpanded">
-            {{ allExpanded ? '已全部展开' : '展开全部' }}
-          </button>
+          <div class="message-stat">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span>{{ messageCount }} 条消息</span>
+          </div>
         </div>
+        <button class="expand-btn" @click="expandAll" :disabled="allExpanded">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <polyline points="9 21 3 21 3 15"></polyline>
+            <line x1="21" y1="3" x2="14" y2="10"></line>
+            <line x1="3" y1="21" x2="10" y2="14"></line>
+          </svg>
+          {{ allExpanded ? '已全部展开' : '展开全部' }}
+        </button>
       </div>
       <div class="thread-messages" ref="messagesContainer" @scroll="handleScroll">
         <div class="messages-inner">
           <template v-for="(message, index) in messages" :key="index">
-            <!-- Chat bubbles for user/assistant messages -->
             <ChatBubble
               v-if="message.role === 'user' || message.role === 'assistant' || message.type === 'tool_result'"
               :blocks="message.blocks || [message]"
@@ -39,24 +64,20 @@
               :ref="el => setBubbleRef(index, el)"
             />
 
-            <!-- Permission badge -->
             <PermissionBadge
               v-else-if="message.type === 'permission-mode'"
               :mode="message.permissionMode"
               :granted="message.granted"
             />
 
-            <!-- File snapshot -->
             <div v-else-if="message.type === 'file-history-snapshot'" class="snapshot-wrapper">
               <FileSnapshot :blocks="message" />
             </div>
 
-            <!-- Attachments -->
             <div v-else-if="message.type === 'attachment'" class="attachment-wrapper">
               <AttachmentList :blocks="message" />
             </div>
 
-            <!-- Last prompt (user message) -->
             <ChatBubble
               v-else-if="message.type === 'last-prompt'"
               :blocks="normalizeContent(message.message?.content)"
@@ -67,10 +88,9 @@
         </div>
       </div>
 
-      <!-- Back to top button -->
       <transition name="fade">
-        <button v-if="showBackToTop" class="back-to-top-btn" @click="scrollToTop" title="Back to top">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <button v-if="showBackToTop" class="back-to-top-btn" @click="scrollToTop" title="回到顶部">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 15l-6-6-6 6"/>
           </svg>
         </button>
@@ -121,16 +141,13 @@ const messageCount = computed(() => {
   ).length;
 });
 
-// Set ref for ChatBubble components to control expand state
 function setBubbleRef(index, el) {
   if (el) {
     bubbleRefs.value[index] = el;
   }
 }
 
-// Expand all collapsible blocks
 function expandAll() {
-  // Trigger expansion on all ToolCall and ToolResult components
   Object.values(bubbleRefs.value).forEach(bubble => {
     if (bubble && bubble.expandAll) {
       bubble.expandAll();
@@ -139,13 +156,11 @@ function expandAll() {
   allExpanded.value = true;
 }
 
-// Handle scroll to show/hide back to top button
 function handleScroll() {
   if (!messagesContainer.value) return;
   showBackToTop.value = messagesContainer.value.scrollTop > 300;
 }
 
-// Scroll to top
 function scrollToTop() {
   if (messagesContainer.value) {
     messagesContainer.value.scrollTo({
@@ -155,20 +170,17 @@ function scrollToTop() {
   }
 }
 
-// Normalize content to blocks format
 function normalizeContent(content) {
   if (typeof content === 'string') return [{ type: 'text', text: content }];
   if (Array.isArray(content)) return content;
   return [];
 }
 
-// Auto-scroll to bottom when new messages arrive
 watch(messages, async () => {
   await nextTick();
   if (messagesContainer.value) {
     messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
   }
-  // Reset expand state when conversation changes
   allExpanded.value = false;
 }, { deep: true });
 </script>
@@ -185,8 +197,8 @@ watch(messages, async () => {
 .thread-loading {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 24px;
+  gap: 20px;
+  padding: 32px;
 }
 
 .thread-empty {
@@ -195,14 +207,39 @@ watch(messages, async () => {
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: var(--text-muted);
   text-align: center;
-  padding: 24px;
+  padding: 48px;
+  animation: fadeIn 0.5s ease-out;
 }
 
-.empty-icon {
-  margin-bottom: 16px;
-  opacity: 0.5;
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.empty-illustration {
+  color: var(--text-muted);
+  margin-bottom: 24px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.empty-text {
+  font-family: var(--font-display);
+  font-size: var(--font-size-xl);
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+}
+
+.empty-hint {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  margin: 0;
 }
 
 .thread-container {
@@ -216,9 +253,10 @@ watch(messages, async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 24px;
+  gap: 16px;
+  padding: 16px 24px;
   border-bottom: 1px solid var(--border-light);
-  background-color: var(--bg-secondary);
+  background: linear-gradient(to bottom, var(--bg-secondary), var(--bg-primary));
   flex-shrink: 0;
 }
 
@@ -230,57 +268,81 @@ watch(messages, async () => {
   overflow: hidden;
 }
 
-.header-actions {
+.title-icon {
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--primary), #F59E0B);
+  border-radius: var(--radius-md);
+  color: white;
+  flex-shrink: 0;
 }
 
 .thread-title {
+  font-family: var(--font-display);
   font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  margin: 0;
 }
 
-.message-count {
+.header-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.message-stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: var(--font-size-xs);
   color: var(--text-muted);
-  background-color: var(--bg-tertiary);
-  padding: 4px 8px;
+  background: var(--bg-tertiary);
+  padding: 4px 10px;
   border-radius: var(--radius-full);
-  flex-shrink: 0;
 }
 
 .skipped-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: var(--font-size-xs);
   color: var(--color-warning);
-  background-color: rgba(202, 138, 4, 0.1);
-  padding: 4px 8px;
+  background: rgba(180, 83, 9, 0.1);
+  padding: 4px 10px;
   border-radius: var(--radius-full);
-  flex-shrink: 0;
 }
 
-.action-btn {
-  padding: 6px 12px;
+.expand-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-family: var(--font-sans);
   font-size: var(--font-size-xs);
+  font-weight: 500;
   color: var(--primary);
-  background-color: transparent;
+  background: transparent;
   border: 1px solid var(--primary);
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.15s ease;
-  white-space: nowrap;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
 }
 
-.action-btn:hover:not(:disabled) {
-  background-color: var(--primary);
+.expand-btn:hover:not(:disabled) {
+  background: var(--primary);
   color: white;
 }
 
-.action-btn:disabled {
+.expand-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -288,10 +350,12 @@ watch(messages, async () => {
 .thread-messages {
   flex: 1;
   overflow-y: auto;
-  padding: 24px;
+  padding: 32px 24px;
+  scroll-behavior: smooth;
 }
 
 .messages-inner {
+  max-width: 900px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -305,36 +369,38 @@ watch(messages, async () => {
 /* Back to top button */
 .back-to-top-btn {
   position: absolute;
-  bottom: 24px;
-  right: 24px;
-  width: 40px;
-  height: 40px;
+  bottom: 28px;
+  right: 28px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--bg-secondary);
+  background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-full);
   cursor: pointer;
   box-shadow: var(--shadow-md);
-  transition: all 0.15s ease;
+  transition: all var(--transition-fast);
   color: var(--text-primary);
 }
 
 .back-to-top-btn:hover {
-  background-color: var(--primary);
+  background: var(--primary);
   color: white;
   border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
 }
 
-/* Transition */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+  transform: translateY(8px);
 }
 </style>

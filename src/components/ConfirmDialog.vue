@@ -1,27 +1,31 @@
 <template>
   <Teleport to="body">
-    <div v-if="show" class="confirm-overlay" @click.self="handleCancel">
-      <div class="confirm-dialog">
-        <div class="confirm-icon" :class="type">
-          <svg v-if="type === 'danger'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="8" x2="12" y2="12"/>
-            <line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
-          <svg v-else width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="16" x2="12" y2="12"/>
-            <line x1="12" y1="8" x2="12.01" y2="8"/>
-          </svg>
-        </div>
-        <h3 class="confirm-title">{{ title }}</h3>
-        <p class="confirm-message">{{ message }}</p>
-        <div class="confirm-actions">
-          <button class="btn btn-cancel" @click="handleCancel">取消</button>
-          <button class="btn" :class="type === 'danger' ? 'btn-danger' : 'btn-primary'" @click="handleConfirm">确定</button>
+    <transition name="dialog">
+      <div v-if="show" class="confirm-overlay" @click.self="handleCancel">
+        <div class="confirm-dialog" role="dialog" aria-modal="true">
+          <div class="confirm-icon" :class="type">
+            <svg v-if="type === 'danger'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            <svg v-else width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+          </div>
+          <h3 class="confirm-title">{{ title }}</h3>
+          <p class="confirm-message">{{ message }}</p>
+          <div class="confirm-actions">
+            <button class="btn btn-cancel" @click="handleCancel">取消</button>
+            <button class="btn" :class="type === 'danger' ? 'btn-danger' : 'btn-primary'" @click="handleConfirm">
+              {{ type === 'danger' ? '删除' : '确定' }}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </transition>
   </Teleport>
 </template>
 
@@ -41,7 +45,7 @@ defineProps({
   },
   type: {
     type: String,
-    default: 'warning', // 'warning' | 'danger'
+    default: 'warning',
     validator: (value) => ['warning', 'danger'].includes(value)
   }
 });
@@ -64,7 +68,8 @@ function handleCancel() {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -72,47 +77,65 @@ function handleCancel() {
 }
 
 .confirm-dialog {
-  background-color: var(--bg-secondary);
-  border-radius: var(--radius-lg);
-  padding: 24px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-xl);
+  padding: 32px;
   max-width: 400px;
   width: 90%;
   box-shadow: var(--shadow-lg);
   text-align: center;
+  border: 1px solid var(--border-color);
+}
+
+.dialog-enter-active,
+.dialog-leave-active {
+  transition: all 0.25s ease;
+}
+
+.dialog-enter-from,
+.dialog-leave-to {
+  opacity: 0;
+}
+
+.dialog-enter-from .confirm-dialog,
+.dialog-leave-to .confirm-dialog {
+  transform: scale(0.95) translateY(10px);
 }
 
 .confirm-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
-  margin: 0 auto 16px;
+  margin: 0 auto 20px;
 }
 
 .confirm-icon.warning {
-  background-color: rgba(202, 138, 4, 0.1);
+  background: linear-gradient(135deg, rgba(180, 83, 9, 0.15), rgba(245, 158, 11, 0.15));
   color: var(--color-warning);
 }
 
 .confirm-icon.danger {
-  background-color: rgba(220, 38, 38, 0.1);
+  background: linear-gradient(135deg, rgba(185, 28, 28, 0.15), rgba(220, 38, 38, 0.15));
   color: var(--color-error);
 }
 
 .confirm-title {
-  font-size: var(--font-size-lg);
+  font-family: var(--font-display);
+  font-size: var(--font-size-xl);
   font-weight: 600;
   color: var(--text-primary);
-  margin: 0 0 8px 0;
+  margin: 0 0 12px 0;
 }
 
 .confirm-message {
+  font-family: var(--font-sans);
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
-  margin: 0 0 24px 0;
-  line-height: 1.5;
+  margin: 0 0 28px 0;
+  line-height: 1.6;
 }
 
 .confirm-actions {
@@ -122,11 +145,13 @@ function handleCancel() {
 }
 
 .btn {
-  padding: 8px 24px;
+  padding: 10px 28px;
+  font-family: var(--font-sans);
   font-size: var(--font-size-sm);
+  font-weight: 500;
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all var(--transition-fast);
   border: none;
 }
 
@@ -140,20 +165,22 @@ function handleCancel() {
 }
 
 .btn-primary {
-  background-color: var(--primary);
+  background: linear-gradient(135deg, var(--primary), #92400E);
   color: white;
 }
 
 .btn-primary:hover {
-  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-danger {
-  background-color: var(--color-error);
+  background: linear-gradient(135deg, #DC2626, #B91C1C);
   color: white;
 }
 
 .btn-danger:hover {
-  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 </style>
