@@ -22,8 +22,14 @@
       <!-- Session Info Bar -->
       <div class="session-info-bar">
         <div class="session-info-left">
-          <span class="session-label">恢复会话</span>
-          <span class="session-time">{{ sessionTime }}</span>
+          <button class="resume-btn" @click="resumeConversation" title="在终端中恢复会话">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            恢复会话
+          </button>
+          <span class="session-divider">|</span>
+          <span class="session-time">{{ conversationTime }}</span>
         </div>
         <div class="session-command" @click="copyCommand">
           <code>{{ resumeCommand }}</code>
@@ -92,27 +98,17 @@ const allExpanded = ref(false);
 const bubbleRefs = ref({});
 const commandCopied = ref(false);
 
-// Extract session info from conversation
-const sessionInfo = computed(() => {
-  if (!props.conversation?.filePath) {
-    return { command: '', time: '' };
-  }
-
-  const filePath = props.conversation.filePath;
-  const fileName = filePath.split('/').pop().replace('.jsonl', '');
-
-  // Extract project path from conversation or use a default
-  const projectPath = extractProjectPath(props.conversation);
-
-  // Build resume command
-  const command = `claude --resume ${fileName} --projectPath "${projectPath}"`;
-
-  return { command, time: props.conversation.updatedAt };
+// Build resume command
+const resumeCommand = computed(() => {
+  if (!props.conversation?.filePath) return '';
+  const fileName = props.conversation.filePath.split('/').pop().replace('.jsonl', '');
+  const projectDir = props.conversation.filePath.split('/').slice(0, -1).join('/');
+  return `cd "${projectDir}" && claude --resume ${fileName}`;
 });
 
-const resumeCommand = computed(() => sessionInfo.value.command);
-const sessionTime = computed(() => {
-  const timestamp = sessionInfo.value.time;
+// Format conversation time
+const conversationTime = computed(() => {
+  const timestamp = props.conversation?.updatedAt;
   if (!timestamp) return '';
   const date = new Date(timestamp);
   return date.toLocaleString('zh-CN', {
@@ -124,25 +120,17 @@ const sessionTime = computed(() => {
   });
 });
 
-function extractProjectPath(conversation) {
-  // Try to get project path from conversation messages
-  if (conversation.messages && conversation.messages.length > 0) {
-    // Look for any message that might contain project info
-    for (const msg of conversation.messages) {
-      if (msg.projectPath) return msg.projectPath;
-    }
+// Resume conversation in terminal
+function resumeConversation() {
+  if (props.conversation?.filePath) {
+    window.electronAPI.resumeConversation(props.conversation.filePath);
   }
-  // Fallback to extracting from file path
-  const parts = props.conversation.filePath?.split('/') || [];
-  // Usually format is ~/.claude/projects/<project-id>/<session-id>.jsonl
-  if (parts.length >= 5) {
-    return parts.slice(0, parts.length - 1).join('/');
-  }
-  return '.';
 }
 
+// Copy resume command
 function copyCommand() {
-  navigator.clipboard.writeText(resumeCommand.value).then(() => {
+  const cmd = `claude --resume ${props.conversation?.filePath?.split('/').pop()?.replace('.jsonl', '')}`;
+  navigator.clipboard.writeText(cmd).then(() => {
     commandCopied.value = true;
     setTimeout(() => {
       commandCopied.value = false;
@@ -320,15 +308,32 @@ watch(messages, async () => {
   gap: 12px;
 }
 
-.session-label {
+.resume-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
   font-size: var(--font-size-sm);
   font-weight: 500;
-  color: var(--text-primary);
+  color: white;
+  background: var(--primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.resume-btn:hover {
+  background: var(--primary-hover);
+}
+
+.session-divider {
+  color: var(--text-muted);
 }
 
 .session-time {
-  font-size: var(--font-size-xs);
-  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
 }
 
 .session-command {

@@ -1,6 +1,7 @@
 'use strict';
 
 const { ipcMain, shell } = require('electron');
+const { exec } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
@@ -218,6 +219,41 @@ function registerIpcHandlers() {
       return { success: true };
     } catch (err) {
       console.error('[ipc-handlers] delete-project error:', err);
+      return { success: false, error: err.message };
+    }
+  });
+
+  // 9. resume-conversation — Open terminal with claude --resume command
+  ipcMain.handle('resume-conversation', async (_, filePath) => {
+    try {
+      const fileName = path.basename(filePath, '.jsonl');
+      const projectDir = path.dirname(filePath);
+      const command = `claude --resume ${fileName}`;
+
+      // Detect platform and open terminal with command
+      const isMac = process.platform === 'darwin';
+      const isLinux = process.platform === 'linux';
+
+      let terminalCommand;
+      if (isMac) {
+        terminalCommand = `osascript -e 'tell app "Terminal" to do script "cd ${projectDir.replace(/'/g, "'\\''")} && ${command}"'`;
+      } else if (isLinux) {
+        // Try common terminal emulators
+        terminalCommand = `bash -c 'cd "${projectDir}" && ${command}; exec bash' &`;
+      } else {
+        // Windows - use cmd
+        terminalCommand = `start cmd /k "cd /d ${projectDir} && ${command}"`;
+      }
+
+      exec(terminalCommand, (err) => {
+        if (err) {
+          console.error('[ipc-handlers] Failed to open terminal:', err);
+        }
+      });
+
+      return { success: true };
+    } catch (err) {
+      console.error('[ipc-handlers] resume-conversation error:', err);
       return { success: false, error: err.message };
     }
   });
