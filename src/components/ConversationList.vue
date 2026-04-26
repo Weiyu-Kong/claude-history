@@ -1,7 +1,7 @@
 <template>
   <div class="conversation-list">
     <div class="conversation-list-header">
-      <SearchBar :query="searchQuery" @search="$emit('search', $event)" />
+      <SearchBar :query="searchQuery" @search="handleSearch" />
     </div>
 
     <div class="conversation-list-content">
@@ -89,11 +89,16 @@ function confirmDelete(conv) {
 }
 
 function handleDelete() {
+  console.log('[ConversationList] Emitting delete with filePath:', pendingDelete.value?.filePath);
   if (pendingDelete.value) {
     emit('delete', pendingDelete.value.filePath);
   }
   showDeleteConfirm.value = false;
   pendingDelete.value = null;
+}
+
+function handleSearch(query) {
+  searchQuery.value = query;
 }
 
 function onSelect(conv) {

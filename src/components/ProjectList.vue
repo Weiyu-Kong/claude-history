@@ -101,6 +101,7 @@ function confirmDelete(project) {
 }
 
 function handleDelete() {
+  console.log('[ProjectList] Emitting delete with id:', pendingDelete.value?.id);
   if (pendingDelete.value) {
     emit('delete', pendingDelete.value.id);
   }

@@ -96,6 +96,15 @@ class Store {
     return stmt.run(filePath);
   }
 
+  deleteProject(projectId) {
+    // Delete associated conversations first (due to foreign key)
+    const deleteConvs = this.db.prepare('DELETE FROM conversations WHERE project_id = ?');
+    deleteConvs.run(projectId);
+    // Then delete the project
+    const deleteProj = this.db.prepare('DELETE FROM projects WHERE id = ?');
+    return deleteProj.run(projectId);
+  }
+
   close() {
     this.db.close();
   }

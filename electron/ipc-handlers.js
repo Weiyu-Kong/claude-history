@@ -191,6 +191,37 @@ function registerIpcHandlers() {
     }
   });
 
+  // 7. delete-conversation — Delete conversation from SQLite
+  ipcMain.handle('delete-conversation', async (_, filePath) => {
+    try {
+      const store = getStore();
+      store.deleteConversation(filePath);
+      return { success: true };
+    } catch (err) {
+      console.error('[ipc-handlers] delete-conversation error:', err);
+      return { success: false, error: err.message };
+    }
+  });
+
+  // 8. delete-project — Delete project and its conversations from SQLite
+  ipcMain.handle('delete-project', async (_, projectId) => {
+    try {
+      const store = getStore();
+      // projectId is actually the folder name (e.g., "-Users-edy-my-space-claude-history")
+      // Find the project in DB by its path
+      const projectsDir = path.join(process.env.HOME || '/home/user', '.claude', 'projects');
+      const projectPath = path.join(projectsDir, projectId);
+      const dbProject = store.getProjectByPath(projectPath);
+      if (dbProject) {
+        store.deleteProject(dbProject.id);
+      }
+      return { success: true };
+    } catch (err) {
+      console.error('[ipc-handlers] delete-project error:', err);
+      return { success: false, error: err.message };
+    }
+  });
+
   console.log('[ipc-handlers] All handlers registered');
 }
 

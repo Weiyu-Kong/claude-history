@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, Menu } = require('electron');
 const path = require('path');
 const { registerIpcHandlers } = require('./ipc-handlers');
 
@@ -29,6 +29,52 @@ function createWindow() {
   registerIpcHandlers();
 }
 
-app.whenReady().then(createWindow);
-app.on('window-all-closed', () => app.quit());
+// Create application menu with keyboard shortcuts
+function createMenu() {
+  const template = [
+    {
+      label: '视图',
+      submenu: [
+        {
+          label: '开发者工具',
+          accelerator: 'CmdOrCtrl+K',
+          click: () => {
+            if (mainWindow) {
+              if (mainWindow.webContents.isDevToolsOpened()) {
+                mainWindow.webContents.closeDevTools();
+              } else {
+                mainWindow.webContents.openDevTools();
+              }
+            }
+          }
+        },
+        { type: 'separator' },
+        { role: 'reload' },
+        { role: 'forceReload' },
+        { role: 'toggleDevTools' },
+        { type: 'separator' },
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+        { role: 'selectAll' }
+      ]
+    }
+  ];
+
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
+}
+
+app.whenReady().then(() => {
+  createWindow();
+  createMenu();
+});
+
+app.on('window-all-closed', () => {
+  app.quit();
+});
+
 app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });

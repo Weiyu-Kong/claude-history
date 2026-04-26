@@ -76,6 +76,12 @@ claude-history/
 ### 命令展示 - CommandBlock 优化
 ![命令展示](./preview/image04.png)
 
+## 快捷键
+
+| 快捷键 | 功能 |
+|--------|------|
+| `Ctrl+K` (Windows) / `Cmd+K` (Mac) | 打开/关闭开发者工具 |
+
 ## License
 
 MIT

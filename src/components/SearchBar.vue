@@ -10,14 +10,14 @@
       ref="inputRef"
       type="text"
       :value="query"
-      placeholder="Search conversations..."
+      placeholder="搜索对话..."
       @input="handleInput"
     />
     <button
       v-if="query"
       class="clear-btn"
       @click="clearSearch"
-      title="Clear search"
+      title="清除搜索"
     >
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M18 6 6 18"></path>

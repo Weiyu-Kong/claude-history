@@ -6,5 +6,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   loadConversation: (filePath) => ipcRenderer.invoke('load-conversation', filePath),
   searchConversations: (projectId, query) => ipcRenderer.invoke('search-conversations', projectId, query),
   updateTitle: (filePath, title) => ipcRenderer.invoke('update-title', filePath, title),
-  openExternal: (filePath) => ipcRenderer.invoke('open-external', filePath)
+  openExternal: (filePath) => ipcRenderer.invoke('open-external', filePath),
+  deleteConversation: (filePath) => ipcRenderer.invoke('delete-conversation', filePath),
+  deleteProject: (projectId) => ipcRenderer.invoke('delete-project', projectId)
 });

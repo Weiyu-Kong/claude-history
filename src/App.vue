@@ -76,15 +76,28 @@ function handleRefresh() {
 }
 
 function handleProjectDelete(projectId) {
-  // Project deletion would need IPC handler - for now just refresh
-  console.log('Delete project:', projectId);
-  handleRefresh();
+  window.electronAPI.deleteProject(projectId).then(() => {
+    // 直接从本地状态移除，不要重新扫描（重新扫描会从磁盘恢复被删除的记录）
+    const index = projectsStore.projects.findIndex(p => p.id === projectId);
+    if (index !== -1) {
+      projectsStore.projects.splice(index, 1);
+    }
+    conversationsStore.clearActive();
+  });
 }
 
 function handleConversationDelete(filePath) {
-  // Conversation deletion would need IPC handler - for now just refresh
-  console.log('Delete conversation:', filePath);
-  handleRefresh();
+  window.electronAPI.deleteConversation(filePath).then(() => {
+    // 直接从当前项目的对话列表移除
+    const currentProject = projectsStore.selectedProject;
+    if (currentProject && currentProject.conversations) {
+      const index = currentProject.conversations.findIndex(c => c.filePath === filePath);
+      if (index !== -1) {
+        currentProject.conversations.splice(index, 1);
+      }
+    }
+    conversationsStore.clearActive();
+  });
 }
 
 // Panel resizing
