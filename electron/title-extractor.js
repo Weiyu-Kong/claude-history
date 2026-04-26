@@ -11,11 +11,12 @@ const { stripMarkdown } = require('./markdown');
  * @returns {string} - The extracted title
  */
 function extractTitle(text) {
-  if (!text) return '';
+  if (!text) return 'Conversation ' + new Date().toISOString().slice(0, 10);
   const stripped = stripMarkdown(text);
   const normalized = stripped.replace(/\s+/g, ' ').trim();
   let title = normalized.slice(0, 50);
   title = title.replace(/[,.:;!?\s]+$/, '');
+  if (!title) return 'Conversation ' + new Date().toISOString().slice(0, 10);
   return title;
 }
 

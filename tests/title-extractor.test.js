@@ -17,9 +17,10 @@ describe('title-extractor', () => {
     });
 
     test('strips code blocks', () => {
-      // Code blocks are removed entirely
+      // Code blocks are removed entirely, returns fallback
       const input = '```js\nconsole.log("hello")\n```';
-      expect(extractTitle(input)).toBe('');
+      const fallback = 'Conversation ' + new Date().toISOString().slice(0, 10);
+      expect(extractTitle(input)).toBe(fallback);
     });
 
     test('strips links', () => {
@@ -95,24 +96,29 @@ describe('title-extractor', () => {
   });
 
   describe('handles empty input', () => {
-    test('returns empty string for null', () => {
-      expect(extractTitle(null)).toBe('');
+    test('returns fallback title with date for null', () => {
+      const fallback = 'Conversation ' + new Date().toISOString().slice(0, 10);
+      expect(extractTitle(null)).toBe(fallback);
     });
 
-    test('returns empty string for undefined', () => {
-      expect(extractTitle(undefined)).toBe('');
+    test('returns fallback title with date for undefined', () => {
+      const fallback = 'Conversation ' + new Date().toISOString().slice(0, 10);
+      expect(extractTitle(undefined)).toBe(fallback);
     });
 
-    test('returns empty string for empty string', () => {
-      expect(extractTitle('')).toBe('');
+    test('returns fallback title with date for empty string', () => {
+      const fallback = 'Conversation ' + new Date().toISOString().slice(0, 10);
+      expect(extractTitle('')).toBe(fallback);
     });
 
-    test('returns empty string for whitespace only', () => {
-      expect(extractTitle('   ')).toBe('');
+    test('returns fallback title with date for whitespace only', () => {
+      const fallback = 'Conversation ' + new Date().toISOString().slice(0, 10);
+      expect(extractTitle('   ')).toBe(fallback);
     });
 
-    test('returns empty string for newline only', () => {
-      expect(extractTitle('\n\n')).toBe('');
+    test('returns fallback title with date for newline only', () => {
+      const fallback = 'Conversation ' + new Date().toISOString().slice(0, 10);
+      expect(extractTitle('\n\n')).toBe(fallback);
     });
   });
 
@@ -146,9 +152,10 @@ describe('title-extractor', () => {
     });
 
     test('handles code snippet in markdown', () => {
-      // Code blocks are removed entirely
+      // Code blocks are removed entirely, returns fallback
       const input = '```python\ndef hello():\n    print("world")\n```';
-      expect(extractTitle(input)).toBe('');
+      const fallback = 'Conversation ' + new Date().toISOString().slice(0, 10);
+      expect(extractTitle(input)).toBe(fallback);
     });
 
     test('handles list of tasks', () => {
