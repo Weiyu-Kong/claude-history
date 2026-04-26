@@ -19,6 +19,26 @@
         </button>
       </div>
 
+      <!-- Session Info Bar -->
+      <div class="session-info-bar">
+        <div class="session-info-left">
+          <span class="session-label">恢复会话</span>
+          <span class="session-time">{{ sessionTime }}</span>
+        </div>
+        <div class="session-command" @click="copyCommand">
+          <code>{{ resumeCommand }}</code>
+          <button class="copy-btn" :class="{ copied: commandCopied }">
+            <svg v-if="!commandCopied" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+
       <div class="thread-messages" ref="messagesContainer">
         <div class="messages-inner">
           <template v-for="(message, index) in messages" :key="index">
@@ -70,6 +90,65 @@ const props = defineProps({
 const messagesContainer = ref(null);
 const allExpanded = ref(false);
 const bubbleRefs = ref({});
+const commandCopied = ref(false);
+
+// Extract session info from conversation
+const sessionInfo = computed(() => {
+  if (!props.conversation?.filePath) {
+    return { command: '', time: '' };
+  }
+
+  const filePath = props.conversation.filePath;
+  const fileName = filePath.split('/').pop().replace('.jsonl', '');
+
+  // Extract project path from conversation or use a default
+  const projectPath = extractProjectPath(props.conversation);
+
+  // Build resume command
+  const command = `claude --resume ${fileName} --projectPath "${projectPath}"`;
+
+  return { command, time: props.conversation.updatedAt };
+});
+
+const resumeCommand = computed(() => sessionInfo.value.command);
+const sessionTime = computed(() => {
+  const timestamp = sessionInfo.value.time;
+  if (!timestamp) return '';
+  const date = new Date(timestamp);
+  return date.toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+});
+
+function extractProjectPath(conversation) {
+  // Try to get project path from conversation messages
+  if (conversation.messages && conversation.messages.length > 0) {
+    // Look for any message that might contain project info
+    for (const msg of conversation.messages) {
+      if (msg.projectPath) return msg.projectPath;
+    }
+  }
+  // Fallback to extracting from file path
+  const parts = props.conversation.filePath?.split('/') || [];
+  // Usually format is ~/.claude/projects/<project-id>/<session-id>.jsonl
+  if (parts.length >= 5) {
+    return parts.slice(0, parts.length - 1).join('/');
+  }
+  return '.';
+}
+
+function copyCommand() {
+  navigator.clipboard.writeText(resumeCommand.value).then(() => {
+    commandCopied.value = true;
+    setTimeout(() => {
+      commandCopied.value = false;
+    }, 2000);
+  });
+}
 
 const messages = computed(() => {
   if (!props.conversation || !props.conversation.messages) {
@@ -126,6 +205,7 @@ function normalizeContent(content) {
 watch(() => props.conversation, () => {
   bubbleRefs.value = {};
   allExpanded.value = false;
+  commandCopied.value = false;
 });
 
 // Auto-scroll to bottom on new messages
@@ -221,6 +301,80 @@ watch(messages, async () => {
 .expand-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Session Info Bar */
+.session-info-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-light);
+  gap: 16px;
+}
+
+.session-info-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.session-label {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.session-time {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
+.session-command {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.session-command:hover {
+  border-color: var(--primary);
+}
+
+.session-command code {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.copy-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.copy-btn:hover {
+  color: var(--primary);
+  background: var(--bg-tertiary);
+}
+
+.copy-btn.copied {
+  color: var(--color-success);
 }
 
 .thread-messages {
