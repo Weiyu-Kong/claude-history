@@ -54,7 +54,7 @@
     <ConfirmDialog
       :show="showDeleteConfirm"
       title="删除项目"
-      :message="`确定要删除 "${pendingDelete?.displayName}" 吗？`"
+      :message="pendingDelete ? '确定要删除 ' + pendingDelete.displayName + ' 吗？' : ''"
       type="danger"
       @confirm="handleDelete"
       @cancel="showDeleteConfirm = false"
