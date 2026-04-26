@@ -109,7 +109,29 @@ const resumeCommand = computed(() => {
 // Format conversation time
 const conversationTime = computed(() => {
   const timestamp = props.conversation?.updatedAt;
-  if (!timestamp) return '';
+  if (!timestamp || timestamp === 0) {
+    // Fallback: try to extract time from file path or file name
+    const filePath = props.conversation?.filePath;
+    if (filePath) {
+      // Try to find timestamp in filename (format: session-1234567890.jsonl)
+      const match = filePath.match(/(\d{10,13})/);
+      if (match) {
+        const ts = parseInt(match[1]);
+        // Handle both second and millisecond timestamps
+        const date = new Date(ts > 9999999999 ? ts : ts * 1000);
+        if (!isNaN(date.getTime())) {
+          return date.toLocaleString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+        }
+      }
+    }
+    return '';
+  }
   const date = new Date(timestamp);
   return date.toLocaleString('zh-CN', {
     year: 'numeric',

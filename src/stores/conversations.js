@@ -27,6 +27,7 @@ export const useConversationsStore = defineStore('conversations', () => {
           conversation = {
             filePath: conv.filePath,
             title: cleanTitle(conv.title) || '',
+            updatedAt: conv.updatedAt,
             messages: result.messages || [],
             skippedCount: 0
           };
