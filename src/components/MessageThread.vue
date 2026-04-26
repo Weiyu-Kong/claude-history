@@ -46,6 +46,13 @@
             <div v-else-if="message.type === 'attachment'" class="attachment-wrapper">
               <AttachmentList :blocks="message" />
             </div>
+
+            <!-- Last prompt (user message) -->
+            <ChatBubble
+              v-else-if="message.type === 'last-prompt'"
+              :blocks="normalizeContent(message.message?.content)"
+              role="user"
+            />
           </template>
         </div>
       </div>
@@ -84,6 +91,13 @@ const messages = computed(() => {
   }
   return props.conversation.messages;
 });
+
+// Normalize content to blocks format
+function normalizeContent(content) {
+  if (typeof content === 'string') return [{ type: 'text', text: content }];
+  if (Array.isArray(content)) return content;
+  return [];
+}
 
 // Auto-scroll to bottom when new messages arrive
 watch(messages, async () => {
