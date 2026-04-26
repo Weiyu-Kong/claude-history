@@ -1,0 +1,6 @@
+appId: com.claude-history-viewer
+productName: Claude History Viewer
+mac:
+  category: public.app-category.developer-tools
+  target: dir
+  icon: build/icon.png
