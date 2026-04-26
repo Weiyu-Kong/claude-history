@@ -6,7 +6,8 @@ export const useThemeStore = defineStore('theme', () => {
   const themes = [
     { id: 'light', name: '简约白', icon: '☀️' },
     { id: 'dark', name: '深邃黑', icon: '🌙' },
-    { id: 'warm', name: '暖色调', icon: '🌤️' }
+    { id: 'warm', name: '暖色调', icon: '🌤️' },
+    { id: 'monika', name: 'Monika', icon: '💗' }
   ];
 
   // Current theme

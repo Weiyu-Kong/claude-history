@@ -112,6 +112,34 @@
   --font-display: Georgia, 'Times New Roman', serif;
 }
 
+/* Monika theme - Cute pink aesthetic */
+[data-theme="monika"] {
+  --bg-primary: #FFF5F8;
+  --bg-secondary: #FFF0F5;
+  --bg-tertiary: #FFE4EC;
+  --text-primary: #4A3728;
+  --text-secondary: #7D6456;
+  --text-muted: #B89E8C;
+  --border-color: #F5D0DC;
+  --border-light: #FFF0F5;
+  --primary: #FF69B4;
+  --primary-hover: #FF1493;
+
+  --bubble-user-bg: #FF69B4;
+  --bubble-user-text: #FFFFFF;
+  --bubble-claude-bg: #FFF0F5;
+  --bubble-claude-text: #4A3728;
+
+  --color-error: #FF6B6B;
+  --color-success: #77DD77;
+  --color-warning: #FFB347;
+
+  --shadow-sm: 0 2px 4px rgba(255, 105, 180, 0.1);
+  --shadow-md: 0 4px 12px rgba(255, 105, 180, 0.15);
+  --shadow-lg: 0 8px 24px rgba(255, 105, 180, 0.2);
+  --shadow-bubble: 0 2px 8px rgba(255, 105, 180, 0.12);
+}
+
 /* Scrollbar styling */
 :root {
   scrollbar-width: thin;
