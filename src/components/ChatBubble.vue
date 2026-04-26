@@ -125,7 +125,7 @@ defineExpose({ expandAll });
 .chat-bubble {
   display: flex;
   flex-direction: column;
-  max-width: 80%;
+  max-width: 50%;
   margin-bottom: 16px;
 }
 

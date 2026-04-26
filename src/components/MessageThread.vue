@@ -15,7 +15,10 @@
 
     <div v-else class="thread-container">
       <div class="thread-header">
-        <h2 class="thread-title">{{ cleanTitle(conversation.title) || '未命名对话' }}</h2>
+        <div class="thread-title-row">
+          <h2 class="thread-title">{{ cleanTitle(conversation.title) || '未命名对话' }}</h2>
+          <span class="message-count">{{ messageCount }} 条消息</span>
+        </div>
         <div class="header-actions">
           <span v-if="skippedCount > 0" class="skipped-indicator" title="部分消息已跳过">
             {{ skippedCount }} 条已跳过
@@ -110,6 +113,12 @@ const messages = computed(() => {
     return [];
   }
   return props.conversation.messages;
+});
+
+const messageCount = computed(() => {
+  return messages.value.filter(m =>
+    m.role === 'user' || m.role === 'assistant' || m.type === 'tool_result'
+  ).length;
 });
 
 // Set ref for ChatBubble components to control expand state
@@ -213,6 +222,14 @@ watch(messages, async () => {
   flex-shrink: 0;
 }
 
+.thread-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  overflow: hidden;
+}
+
 .header-actions {
   display: flex;
   align-items: center;
@@ -226,8 +243,15 @@ watch(messages, async () => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  flex: 1;
-  margin-right: 12px;
+}
+
+.message-count {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  background-color: var(--bg-tertiary);
+  padding: 4px 8px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
 }
 
 .skipped-indicator {
