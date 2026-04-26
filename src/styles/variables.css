@@ -140,6 +140,34 @@
   --shadow-bubble: 0 2px 8px rgba(255, 105, 180, 0.12);
 }
 
+/* Monokai theme - Classic code editor style */
+[data-theme="monokai"] {
+  --bg-primary: #272822;
+  --bg-secondary: #1E1F1C;
+  --bg-tertiary: #3E3D32;
+  --text-primary: #F8F8F2;
+  --text-secondary: #E6DB74;
+  --text-muted: #75715E;
+  --border-color: #49483E;
+  --border-light: #3E3D32;
+  --primary: #66D9EF;
+  --primary-hover: #A6E22E;
+
+  --bubble-user-bg: #F92672;
+  --bubble-user-text: #FFFFFF;
+  --bubble-claude-bg: #3E3D32;
+  --bubble-claude-text: #F8F8F2;
+
+  --color-error: #F92672;
+  --color-success: #A6E22E;
+  --color-warning: #FD971F;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.5);
+  --shadow-bubble: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
 /* Scrollbar styling */
 :root {
   scrollbar-width: thin;
