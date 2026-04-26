@@ -1,3 +1,4 @@
+/* Google Fonts with system fallbacks for offline use */
 @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
@@ -70,18 +71,18 @@
     --text-muted: #78716C;
     --border-color: #44403C;
     --border-light: #292524;
-    --primary: #38BDF8;
-    --primary-hover: #7DD3FC;
+    --primary: #F59E0B;
+    --primary-hover: #FBBF24;
 
-    --bubble-user-bg: #6366F1;
+    --bubble-user-bg: #4F46E5;
     --bubble-user-text: #FAFAFA;
-    --bubble-claude-bg: #1C1917;
+    --bubble-claude-bg: #292524;
     --bubble-claude-text: #FAFAF9;
 
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
-    --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.5);
-    --shadow-bubble: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.6);
+    --shadow-bubble: 0 2px 8px rgba(0, 0, 0, 0.4);
   }
 }
 

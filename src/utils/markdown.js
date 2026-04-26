@@ -1,4 +1,5 @@
 import { marked } from 'marked';
+import DOMPurify from 'dompurify';
 
 // Configure marked for GitHub-flavored markdown
 marked.setOptions({
@@ -7,14 +8,20 @@ marked.setOptions({
 });
 
 /**
- * Render markdown text to HTML
+ * Render markdown text to sanitized HTML
  * @param {string} text - Markdown text
- * @returns {string} HTML string
+ * @returns {string} Sanitized HTML string
  */
 export function renderMarkdown(text) {
   if (!text) return '';
   try {
-    return marked.parse(text);
+    const html = marked.parse(text);
+    return DOMPurify.sanitize(html, {
+      ALLOWED_TAGS: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'hr',
+        'ul', 'ol', 'li', 'blockquote', 'pre', 'code', 'strong', 'em', 'del',
+        'a', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'span', 'div'],
+      ALLOWED_ATTR: ['href', 'class', 'title']
+    });
   } catch (e) {
     console.error('[markdown] Render error:', e);
     return text;

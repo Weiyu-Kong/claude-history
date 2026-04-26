@@ -31,9 +31,13 @@
           :key="conv.filePath"
           :class="['conversation-item', { active: conv.filePath === selectedId }]"
           @click="onSelect(conv)"
-          :style="{ animationDelay: index * 0.03 + 's' }"
+          :style="{ animationDelay: Math.min(index, 10) * 0.03 + 's' }"
         >
-          <div class="conv-indicator"></div>
+          <div class="conv-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </div>
           <div class="conv-content">
             <div class="conv-main">
               <span class="conv-title">{{ cleanTitle(conv.title) || 'click to show title' }}</span>
@@ -108,7 +112,6 @@ function confirmDelete(conv) {
 }
 
 function handleDelete() {
-  console.log('[ConversationList] Emitting delete with filePath:', pendingDelete.value?.filePath);
   if (pendingDelete.value) {
     emit('delete', pendingDelete.value.filePath);
   }
@@ -214,23 +217,47 @@ function formatDate(timestamp) {
   background-color: var(--bg-tertiary);
 }
 
-.conversation-item:hover .delete-btn {
+.conversation-item:hover .delete-btn,
+.conversation-item:hover .project-meta {
   opacity: 1;
 }
 
 .conversation-item.active {
+  background: linear-gradient(135deg, var(--primary) 0%, #6366F1 100%);
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.conversation-item.active .conv-icon {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.conversation-item.active .conv-count {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.conversation-item.active .delete-btn {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.conversation-item.active .delete-btn:hover {
+  color: white;
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.conv-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
   background-color: var(--bg-tertiary);
-}
-
-.conv-indicator {
-  width: 3px;
-  background: transparent;
-  transition: background-color var(--transition-fast);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
   flex-shrink: 0;
-}
-
-.conversation-item.active .conv-indicator {
-  background: linear-gradient(to bottom, var(--primary), #F59E0B);
+  transition: all var(--transition-fast);
 }
 
 .conv-content {
@@ -302,6 +329,12 @@ function formatDate(timestamp) {
 .delete-btn:hover {
   color: var(--color-error);
   background-color: rgba(185, 28, 28, 0.1);
+}
+
+.delete-btn:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 .empty-state {

@@ -347,6 +347,16 @@ watch(messages, async () => {
   cursor: not-allowed;
 }
 
+.expand-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.back-to-top-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
 .thread-messages {
   flex: 1;
   overflow-y: auto;

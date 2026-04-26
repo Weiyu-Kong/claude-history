@@ -48,7 +48,7 @@
           :key="project.id"
           :class="['project-item', { active: project.id === selectedId }]"
           @click="$emit('select', project.id)"
-          :style="{ animationDelay: index * 0.04 + 's' }"
+          :style="{ animationDelay: Math.min(index, 10) * 0.04 + 's' }"
         >
           <div class="project-icon">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -122,7 +122,6 @@ function confirmDelete(project) {
 }
 
 function handleDelete() {
-  console.log('[ProjectList] Emitting delete with id:', pendingDelete.value?.id);
   if (pendingDelete.value) {
     emit('delete', pendingDelete.value.id);
   }
@@ -131,14 +130,14 @@ function handleDelete() {
 }
 
 function getDisplayName(project) {
-  if (project.name) {
-    const parts = project.name.split('-');
-    if (parts.length >= 2) {
-      return parts.slice(-2).join('-');
-    }
-    return parts[parts.length - 1];
+  if (!project.name) {
+    return project.path?.split('/').pop() || '未命名项目';
   }
-  return project.name;
+  const parts = project.name.split('-');
+  if (parts.length >= 2) {
+    return parts.slice(-2).join('-');
+  }
+  return parts[parts.length - 1];
 }
 
 function getShortPath(path) {
@@ -383,6 +382,17 @@ function getShortPath(path) {
 .delete-btn:hover {
   color: var(--color-error);
   background-color: rgba(185, 28, 28, 0.1);
+}
+
+.delete-btn:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.refresh-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 .empty-state {
