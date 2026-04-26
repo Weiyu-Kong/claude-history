@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import { extractTitle } from '../utils/title-extractor.js';
 
 export const useConversationsStore = defineStore('conversations', () => {
   const selectedConvId = ref(null);
@@ -28,6 +29,21 @@ export const useConversationsStore = defineStore('conversations', () => {
         activeConversation.value = result;
       }
       skippedMessages.value = activeConversation.value.skippedCount || 0;
+
+      // Auto-generate title if not present
+      if (!conv.title && activeConversation.value?.messages?.length > 0) {
+        const firstUserMsg = activeConversation.value.messages.find(m => m.role === 'user');
+        if (firstUserMsg) {
+          const textBlock = firstUserMsg.blocks?.find(b => b.type === 'text');
+          if (textBlock?.text) {
+            const title = extractTitle(textBlock.text);
+            if (title) {
+              conv.title = title;
+              await window.electronAPI.updateTitle(conv.id, title);
+            }
+          }
+        }
+      }
     } finally {
       loading.value = false;
     }
