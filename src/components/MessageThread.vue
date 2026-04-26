@@ -26,6 +26,7 @@
               v-if="message.role === 'user' || message.role === 'assistant' || message.type === 'tool_result'"
               :blocks="message.blocks || [message]"
               :role="message.role === 'tool_result' ? 'assistant' : message.role"
+              :ref="el => setBubbleRef(index, el)"
             />
             <PermissionBadge
               v-else-if="message.type === 'permission-mode'"
@@ -40,6 +41,7 @@
               v-else-if="message.type === 'last-prompt'"
               :blocks="normalizeContent(message.message?.content)"
               role="user"
+              :ref="el => setBubbleRef(index, el)"
             />
           </template>
         </div>
@@ -49,7 +51,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch, nextTick } from 'vue';
 import { cleanTitle } from '../utils/title-extractor.js';
 import SkeletonLoader from './SkeletonLoader.vue';
 import ChatBubble from './ChatBubble.vue';
@@ -67,6 +69,7 @@ const props = defineProps({
 
 const messagesContainer = ref(null);
 const allExpanded = ref(false);
+const bubbleRefs = ref({});
 
 const messages = computed(() => {
   if (!props.conversation || !props.conversation.messages) {
@@ -81,7 +84,18 @@ const messageCount = computed(() => {
   ).length;
 });
 
+function setBubbleRef(index, el) {
+  if (el) {
+    bubbleRefs.value[index] = el;
+  }
+}
+
 function expandAll() {
+  Object.values(bubbleRefs.value).forEach(bubble => {
+    if (bubble && bubble.expandAll) {
+      bubble.expandAll();
+    }
+  });
   allExpanded.value = true;
 }
 
@@ -90,6 +104,20 @@ function normalizeContent(content) {
   if (Array.isArray(content)) return content;
   return [];
 }
+
+// Reset expand state when conversation changes
+watch(() => props.conversation, () => {
+  bubbleRefs.value = {};
+  allExpanded.value = false;
+});
+
+// Auto-scroll to bottom on new messages
+watch(messages, async () => {
+  await nextTick();
+  if (messagesContainer.value) {
+    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+  }
+}, { deep: true });
 </script>
 
 <style scoped>
