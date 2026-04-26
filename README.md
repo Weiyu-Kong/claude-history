@@ -6,6 +6,7 @@
 
 - **三栏布局**：项目列表 → 对话列表 → 消息详情
 - **优雅的对话展示**：支持 Markdown 渲染、代码高亮、工具调用展示
+- **主题切换**：支持简约白/深邃黑/暖色调三种主题
 - **特殊工具优化**：
   - TaskCreate：任务创建卡片式展示
   - Edit/Write：文件修改对比展示
@@ -15,47 +16,67 @@
 - **中文界面**：完整的本地化支持
 - **删除确认**：数据安全保护
 
+## 快速开始
+
+### 1. 安装依赖（推荐使用 cnpm）
+
+```bash
+# 全局安装 cnpm（如果没有安装过）
+npm install -g cnpm --registry=https://registry.npmmirror.com
+
+# 安装项目依赖
+cnpm install
+
+# 如果 Electron 下载慢，使用镜像
+export ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/
+cnpm install
+```
+
+### 2. 开发模式运行
+
+```bash
+cnpm run dev
+```
+
+### 3. 构建应用
+
+```bash
+# 构建 macOS 应用
+cnpm run electron:build
+```
+
+构建完成后，应用会生成在 `out` 目录下。
+
 ## 技术栈
 
 - **前端框架**：Vue 3 + Vite
 - **状态管理**：Pinia
 - **桌面应用**：Electron
 - **数据库**：SQLite (better-sqlite3)
-- **Markdown**：marked
-- **样式**：CSS Variables
-
-## 安装运行
-
-```bash
-# 安装依赖
-pnpm install
-
-# 开发模式
-pnpm dev
-
-# 构建应用
-pnpm build
-```
+- **Markdown**：marked + DOMPurify
 
 ## 项目结构
 
 ```
 claude-history/
 ├── electron/           # Electron 主进程
-│   ├── ipc-handlers.js    # IPC 处理器
-│   ├── message-parser.js  # 对话解析器
-│   └── file-scanner.js    # 项目扫描器
+│   ├── index.js          # 入口文件
+│   ├── preload.js        # 预加载脚本
+│   ├── ipc-handlers.js   # IPC 处理器
+│   ├── message-parser.js # 对话解析器
+│   ├── file-scanner.js   # 项目扫描器
+│   └── store.js          # SQLite 数据库
 ├── src/               # Vue 渲染进程
 │   ├── components/    # Vue 组件
 │   │   ├── ChatBubble.vue       # 聊天气泡
 │   │   ├── ConversationList.vue  # 对话列表
 │   │   ├── MessageThread.vue    # 消息线程
 │   │   ├── ProjectList.vue      # 项目列表
-│   │   ├── ToolCall.vue          # 工具调用
-│   │   └── *ToolBlock.vue        # 各类工具展示组件
+│   │   ├── ThemeSelector.vue    # 主题选择
+│   │   └── *ToolBlock.vue       # 各类工具展示组件
 │   ├── stores/        # Pinia 状态管理
 │   └── utils/         # 工具函数
-└── docs/              # 设计文档
+└── build/             # 应用图标
 ```
 
 ## 数据来源
@@ -64,7 +85,7 @@ claude-history/
 
 ## 截图预览
 
-### 主界面 - 三栏布局
+### 主界面 - 三栏布局 + 主题切换
 ![主界面](./preview/image01.png)
 
 ### 对话详情 - 工具调用展示
@@ -81,6 +102,27 @@ claude-history/
 | 快捷键 | 功能 |
 |--------|------|
 | `Ctrl+K` (Windows) / `Cmd+K` (Mac) | 打开/关闭开发者工具 |
+
+## 常见问题
+
+### Electron 下载失败
+
+```bash
+# 设置 Electron 镜像
+export ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/
+cnpm install
+```
+
+### macOS 上提示"无法打开"
+
+首次运行需要在"系统偏好设置 → 安全性与隐私"中允许应用运行。
+
+### 构建失败
+
+确保已安装 Xcode Command Line Tools：
+```bash
+xcode-select --install
+```
 
 ## License
 
