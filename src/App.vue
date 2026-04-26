@@ -36,7 +36,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref } from 'vue';
 import { useProjectsStore } from './stores/projects';
 import { useConversationsStore } from './stores/conversations';
 import ProjectList from './components/ProjectList.vue';
