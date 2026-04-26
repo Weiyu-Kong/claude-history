@@ -67,6 +67,8 @@ function scanConversations(projectPath) {
     }
   }
 
+  conversations.sort((a, b) => b.updatedAt - a.updatedAt);
+
   return conversations;
 }
 
