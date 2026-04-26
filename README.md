@@ -87,20 +87,17 @@ claude-history/
 
 ## 截图预览
 
-### 主界面 - 三栏布局 + 主题切换
+### 主界面 - 三栏布局
 ![主界面](./preview/image01.png)
 
-### 对话详情 - 工具调用展示
-![对话详情](./preview/image02.png)
+### 会话恢复功能
+![会话恢复](./preview/image02.png)
 
-### 任务卡片 - TaskCreate 优化
-![任务卡片](./preview/image03.png)
+### 更多对话示例
+![对话示例](./preview/image03.png)
 
 ### 命令展示 - CommandBlock 优化
 ![命令展示](./preview/image04.png)
-
-### 会话恢复 - 一键继续历史对话
-![会话恢复](./preview/image05.png)
 
 ## 快捷键
 
