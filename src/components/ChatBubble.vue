@@ -16,36 +16,24 @@
     </div>
     <div class="bubble-content">
       <template v-for="(block, i) in normalizedBlocks" :key="i">
-        <!-- Text blocks - handle command and regular content -->
         <div v-if="block.type === 'text'" class="text-block">
-          <!-- Command block if has command content -->
           <div v-if="block.command" class="command-wrapper">
             <CommandBlock
               :command="block.command"
               :body="block.body"
             />
-            <!-- Additional body content after command -->
             <div v-if="block.body && block.body.trim()" v-html="block.renderedHtml" class="markdown-content command-body"></div>
           </div>
-          <!-- Regular text/markdown without command -->
           <div v-else class="text-content">
             <div v-html="block.renderedHtml" class="markdown-content"></div>
           </div>
         </div>
-
-        <!-- Tool blocks with special formatting -->
         <TaskCreateBlock v-if="block.type === 'tool_use' && block.name === 'TaskCreate'" :block="block" />
         <WriteToolBlock v-else-if="block.type === 'tool_use' && block.name === 'Write'" :block="block" />
         <EditToolBlock v-else-if="block.type === 'tool_use' && block.name === 'Edit'" :block="block" />
         <ReadToolBlock v-else-if="block.type === 'tool_use' && block.name === 'Read'" :block="block" />
-
-        <!-- Generic tool call blocks -->
         <ToolCall v-else-if="block.type === 'tool_use'" :block="block" :ref="el => setChildRef('tool_' + i, el)" />
-
-        <!-- Tool result blocks -->
         <ToolResult v-else-if="block.type === 'tool_result'" :block="block" :ref="el => setChildRef('result_' + i, el)" />
-
-        <!-- Thinking blocks -->
         <ThinkingBlock v-else-if="block.type === 'thinking'" :block="block" :ref="el => setChildRef('thinking_' + i, el)" />
       </template>
     </div>
@@ -163,15 +151,6 @@ defineExpose({ expandAll });
   background: var(--primary);
   color: white;
 }
-  color: var(--bubble-user-text);
-  box-shadow: var(--shadow-sm);
-}
-
-.chat-bubble.assistant .avatar {
-  background: linear-gradient(135deg, #F59E0B, #D97706);
-  color: white;
-  box-shadow: var(--shadow-sm);
-}
 
 .role-label {
   font-size: var(--font-size-xs);
@@ -214,7 +193,6 @@ defineExpose({ expandAll });
   border-left: 3px solid var(--primary);
 }
 
-/* Markdown content */
 .markdown-content {
   overflow-x: auto;
 }
