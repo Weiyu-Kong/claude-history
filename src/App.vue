@@ -18,6 +18,9 @@
       </div>
 
       <aside class="panel panel-middle" :style="{ width: middlePanelWidth + 'px' }">
+        <div class="panel-header-actions">
+          <ThemeSelector />
+        </div>
         <ConversationList
           :conversations="currentConversations"
           :selectedId="conversationsStore.activeConversation?.filePath"
@@ -46,12 +49,15 @@
 import { ref, computed, onMounted } from 'vue';
 import { useProjectsStore } from './stores/projects';
 import { useConversationsStore } from './stores/conversations';
+import { useThemeStore } from './stores/theme';
 import ProjectList from './components/ProjectList.vue';
 import ConversationList from './components/ConversationList.vue';
 import MessageThread from './components/MessageThread.vue';
+import ThemeSelector from './components/ThemeSelector.vue';
 
 const projectsStore = useProjectsStore();
 const conversationsStore = useConversationsStore();
+const themeStore = useThemeStore();
 
 const leftPanelWidth = ref(240);
 const middlePanelWidth = ref(300);
@@ -135,6 +141,7 @@ function stopResize() {
 }
 
 onMounted(() => {
+  themeStore.initTheme();
   projectsStore.loadProjects();
 });
 </script>
@@ -162,6 +169,14 @@ onMounted(() => {
 
 .panel-right {
   flex: 1;
+}
+
+.panel-header-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-secondary);
 }
 
 .resize-handle {
