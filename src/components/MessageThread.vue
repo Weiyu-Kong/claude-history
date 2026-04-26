@@ -14,8 +14,8 @@
           <h2>{{ cleanTitle(conversation.title) || '未命名对话' }}</h2>
           <span class="message-count">{{ messageCount }} 条消息</span>
         </div>
-        <button class="expand-btn" @click="expandAll" :disabled="allExpanded">
-          {{ allExpanded ? '已展开' : '展开全部' }}
+        <button class="expand-btn" @click="toggleAll">
+          {{ allExpanded ? '收起全部' : '展开全部' }}
         </button>
       </div>
 
@@ -97,6 +97,23 @@ function expandAll() {
     }
   });
   allExpanded.value = true;
+}
+
+function collapseAll() {
+  Object.values(bubbleRefs.value).forEach(bubble => {
+    if (bubble && bubble.collapseAll) {
+      bubble.collapseAll();
+    }
+  });
+  allExpanded.value = false;
+}
+
+function toggleAll() {
+  if (allExpanded.value) {
+    collapseAll();
+  } else {
+    expandAll();
+  }
 }
 
 function normalizeContent(content) {

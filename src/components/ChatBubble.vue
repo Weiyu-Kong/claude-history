@@ -105,7 +105,15 @@ function expandAll() {
   });
 }
 
-defineExpose({ expandAll });
+function collapseAll() {
+  Object.values(childRefs.value).forEach(child => {
+    if (child && child.collapseAll) {
+      child.collapseAll();
+    }
+  });
+}
+
+defineExpose({ expandAll, collapseAll });
 </script>
 
 <style scoped>

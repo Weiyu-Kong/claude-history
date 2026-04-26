@@ -59,7 +59,11 @@ function expandAll() {
   expanded.value = true;
 }
 
-defineExpose({ expandAll });
+function collapseAll() {
+  expanded.value = false;
+}
+
+defineExpose({ expandAll, collapseAll });
 </script>
 
 <style scoped>

@@ -48,7 +48,11 @@ function expandAll() {
   // No-op
 }
 
-defineExpose({ expandAll });
+function collapseAll() {
+  // No-op
+}
+
+defineExpose({ expandAll, collapseAll });
 </script>
 
 <style scoped>

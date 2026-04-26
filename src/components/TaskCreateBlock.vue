@@ -68,7 +68,11 @@ function expandAll() {
   // No-op for this component
 }
 
-defineExpose({ expandAll });
+function collapseAll() {
+  // No-op for this component
+}
+
+defineExpose({ expandAll, collapseAll });
 </script>
 
 <style scoped>
