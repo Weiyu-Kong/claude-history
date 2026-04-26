@@ -12,7 +12,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, defineExpose } from 'vue';
 
 const props = defineProps({
   block: {
@@ -34,6 +34,13 @@ const contentText = computed(() => {
   }
   return JSON.stringify(content, null, 2);
 });
+
+// Expand all (set expanded to true)
+function expandAll() {
+  expanded.value = true;
+}
+
+defineExpose({ expandAll });
 </script>
 
 <style scoped>

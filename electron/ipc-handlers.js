@@ -71,9 +71,15 @@ function registerIpcHandlers() {
           );
         }
 
-        // Fetch enriched conversations from DB
+        // Fetch enriched conversations from DB and convert to camelCase
         const dbConvs = store.getConversationsByProject(dbProject.id);
-        project.conversations = dbConvs;
+        project.conversations = dbConvs.map(conv => ({
+          id: conv.id,
+          filePath: conv.file_path,
+          fileSize: conv.file_size,
+          updatedAt: conv.updated_at,
+          title: conv.title
+        }));
       }
 
       return { success: true, projects };
@@ -87,7 +93,14 @@ function registerIpcHandlers() {
   ipcMain.handle('get-conversations', async (_, projectId) => {
     try {
       const store = getStore();
-      const conversations = store.getConversationsByProject(projectId);
+      const dbConvs = store.getConversationsByProject(projectId);
+      const conversations = dbConvs.map(conv => ({
+        id: conv.id,
+        filePath: conv.file_path,
+        fileSize: conv.file_size,
+        updatedAt: conv.updated_at,
+        title: conv.title
+      }));
       return { success: true, conversations };
     } catch (err) {
       console.error('[ipc-handlers] get-conversations error:', err);

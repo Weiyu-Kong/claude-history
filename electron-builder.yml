@@ -1,6 +1,19 @@
-appId: com.claude-history-viewer
+appId: com.claude.history-viewer
 productName: Claude History Viewer
+directories:
+  output: out
+  buildResources: build
+files:
+  - dist/**/*
+  - electron/**/*
+  - package.json
+extraMetadata:
+  main: electron/index.js
 mac:
   category: public.app-category.developer-tools
-  target: dir
-  icon: build/icon.png
+  target:
+    - dmg
+    - zip
+asar: true
+asarUnpack:
+  - node_modules/better-sqlite3/**/*

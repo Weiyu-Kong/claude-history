@@ -7,24 +7,39 @@ export const useProjectsStore = defineStore('projects', () => {
   const loading = ref(false);
   const error = ref(null);
 
-  const selectedProject = computed(() =>
-    projects.value.find(p => p.id === selectedProjectId.value) || null
-  );
+  const selectedProject = computed(() => {
+    if (!projects.value || !Array.isArray(projects.value)) {
+      return null;
+    }
+    return projects.value.find(p => p.id === selectedProjectId.value) || null;
+  });
 
   async function loadProjects() {
     loading.value = true;
     error.value = null;
     try {
       const result = await window.electronAPI.scanProjects();
-      projects.value = result;
+      if (result.success) {
+        projects.value = result.projects || [];
+      } else {
+        error.value = result.error || 'Unknown error';
+        projects.value = [];
+      }
     } catch (e) {
       error.value = e.message;
+      projects.value = [];
     } finally {
       loading.value = false;
     }
   }
 
-  function selectProject(id) { selectedProjectId.value = id; }
+  function selectProject(id) {
+    selectedProjectId.value = id;
+  }
 
-  return { projects, selectedProjectId, selectedProject, loading, error, loadProjects, selectProject };
+  function clearSelectedProject() {
+    selectedProjectId.value = null;
+  }
+
+  return { projects, selectedProjectId, selectedProject, loading, error, loadProjects, selectProject, clearSelectedProject };
 });

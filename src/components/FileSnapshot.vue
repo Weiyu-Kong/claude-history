@@ -52,19 +52,14 @@ const props = defineProps({
 const expanded = ref(false);
 
 const fileSnapshots = computed(() => {
-  // Extract file snapshots from various block structures
-  if (props.blocks.snapshot) {
-    return props.blocks.snapshot;
+  // Extract file snapshots from message.files (set by message-parser)
+  if (props.blocks.files) {
+    return props.blocks.files;
   }
-  if (props.blocks.content) {
-    try {
-      const parsed = typeof props.blocks.content === 'string'
-        ? JSON.parse(props.blocks.content)
-        : props.blocks.content;
-      return parsed.snapshot || parsed.files || [];
-    } catch {
-      return [];
-    }
+  // Fallback: try to parse from snapshot structure
+  if (props.blocks.snapshot) {
+    const snapshot = props.blocks.snapshot;
+    return snapshot.files || [];
   }
   return [];
 });

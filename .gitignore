@@ -3,3 +3,26 @@ dist/
 out/
 *.db
 .DS_Store
+
+# Claude history viewer specific
+*.log
+npm-debug.log*
+
+# Local sensitive data and caches
+.claude/
+.superpowers/
+
+# Lock files (use pnpm-lock.yaml instead)
+package-lock.json
+yarn.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+.env.*.local

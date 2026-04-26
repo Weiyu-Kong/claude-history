@@ -25,6 +25,7 @@ function scanProjects(projectsDir = PROJECTS_DIR) {
       const conversations = scanConversations(projectPath);
 
       projects.push({
+        id: entry.name,  // Use name as unique identifier
         name: entry.name,
         path: projectPath,
         conversations: conversations,
@@ -56,6 +57,7 @@ function scanConversations(projectPath) {
       try {
         const stats = fs.statSync(filePath);
         conversations.push({
+          id: filePath,  // Use filePath as unique identifier
           filePath: filePath,
           fileSize: stats.size,
           updatedAt: stats.mtimeMs,

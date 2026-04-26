@@ -8,6 +8,8 @@
           :loading="projectsStore.loading"
           :error="projectsStore.error"
           @select="handleProjectSelect"
+          @refresh="handleRefresh"
+          @delete="handleProjectDelete"
         />
       </aside>
 
@@ -19,6 +21,7 @@
           :selectedId="conversationsStore.activeConversation?.filePath"
           :loading="conversationsStore.loading"
           @select="handleConversationSelect"
+          @delete="handleConversationDelete"
         />
       </aside>
 
@@ -36,7 +39,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useProjectsStore } from './stores/projects';
 import { useConversationsStore } from './stores/conversations';
 import ProjectList from './components/ProjectList.vue';
@@ -53,8 +56,7 @@ const rightPanelMinWidth = 400;
 
 // Conversation list for selected project
 const currentConversations = computed(() => {
-  const project = projectsStore.selectedProject;
-  return project?.conversations || [];
+  return projectsStore.selectedProject?.conversations || [];
 });
 
 // Handlers
@@ -65,6 +67,24 @@ function handleProjectSelect(projectId) {
 
 function handleConversationSelect(conv) {
   conversationsStore.openConversation(conv);
+}
+
+function handleRefresh() {
+  projectsStore.clearSelectedProject();
+  conversationsStore.clearActive();
+  projectsStore.loadProjects();
+}
+
+function handleProjectDelete(projectId) {
+  // Project deletion would need IPC handler - for now just refresh
+  console.log('Delete project:', projectId);
+  handleRefresh();
+}
+
+function handleConversationDelete(filePath) {
+  // Conversation deletion would need IPC handler - for now just refresh
+  console.log('Delete conversation:', filePath);
+  handleRefresh();
 }
 
 // Panel resizing
