@@ -10,7 +10,7 @@
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
         </svg>
       </div>
-      <p>Select a conversation to view messages</p>
+      <p>Select a conversation to view its history</p>
     </div>
 
     <div v-else class="thread-container">
@@ -20,10 +20,33 @@
           {{ skippedCount }} skipped
         </span>
       </div>
-      <div class="thread-messages">
-        <!-- Messages will be rendered here in future iterations -->
-        <div class="messages-placeholder">
-          <p>Messages will appear here</p>
+      <div class="thread-messages" ref="messagesContainer">
+        <div class="messages-inner">
+          <template v-for="(message, index) in messages" :key="index">
+            <!-- Chat bubbles for user/assistant messages -->
+            <ChatBubble
+              v-if="message.role === 'user' || message.role === 'assistant'"
+              :blocks="message.blocks || [message]"
+              :role="message.role"
+            />
+
+            <!-- Permission badge -->
+            <PermissionBadge
+              v-else-if="message.type === 'permission_mode'"
+              :mode="message.mode"
+              :granted="message.granted"
+            />
+
+            <!-- File snapshot -->
+            <div v-else-if="message.type === 'file-history-snapshot'" class="snapshot-wrapper">
+              <FileSnapshot :blocks="message" />
+            </div>
+
+            <!-- Attachments -->
+            <div v-else-if="message.type === 'attachment'" class="attachment-wrapper">
+              <AttachmentList :blocks="message" />
+            </div>
+          </template>
         </div>
       </div>
     </div>
@@ -31,9 +54,14 @@
 </template>
 
 <script setup>
+import { ref, computed, watch, nextTick } from 'vue';
 import SkeletonLoader from './SkeletonLoader.vue';
+import ChatBubble from './ChatBubble.vue';
+import PermissionBadge from './PermissionBadge.vue';
+import FileSnapshot from './FileSnapshot.vue';
+import AttachmentList from './AttachmentList.vue';
 
-defineProps({
+const props = defineProps({
   conversation: {
     type: Object,
     default: null
@@ -47,6 +75,23 @@ defineProps({
     default: 0
   }
 });
+
+const messagesContainer = ref(null);
+
+const messages = computed(() => {
+  if (!props.conversation || !props.conversation.messages) {
+    return [];
+  }
+  return props.conversation.messages;
+});
+
+// Auto-scroll to bottom when new messages arrive
+watch(messages, async () => {
+  await nextTick();
+  if (messagesContainer.value) {
+    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+  }
+}, { deep: true });
 </script>
 
 <style scoped>
@@ -93,6 +138,7 @@ defineProps({
   padding: 16px 24px;
   border-bottom: 1px solid var(--border-light);
   background-color: var(--bg-secondary);
+  flex-shrink: 0;
 }
 
 .thread-title {
@@ -119,13 +165,15 @@ defineProps({
   padding: 24px;
 }
 
-.messages-placeholder {
+.messages-inner {
+  max-width: 800px;
+  margin: 0 auto;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 200px;
-  border: 2px dashed var(--border-color);
-  border-radius: var(--radius-lg);
-  color: var(--text-muted);
+  flex-direction: column;
+}
+
+.snapshot-wrapper,
+.attachment-wrapper {
+  margin-bottom: 16px;
 }
 </style>
