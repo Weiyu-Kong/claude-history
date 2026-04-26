@@ -122,22 +122,22 @@
   --text-muted: #B89E8C;
   --border-color: #F5D0DC;
   --border-light: #FFF0F5;
-  --primary: #FF69B4;
-  --primary-hover: #FF1493;
+  --primary: #E91E63;
+  --primary-hover: #C2185B;
 
-  --bubble-user-bg: #FF69B4;
+  --bubble-user-bg: #AD1457;
   --bubble-user-text: #FFFFFF;
   --bubble-claude-bg: #FFF0F5;
   --bubble-claude-text: #4A3728;
 
-  --color-error: #FF6B6B;
-  --color-success: #77DD77;
+  --color-error: #E91E63;
+  --color-success: #81C784;
   --color-warning: #FFB347;
 
-  --shadow-sm: 0 2px 4px rgba(255, 105, 180, 0.1);
-  --shadow-md: 0 4px 12px rgba(255, 105, 180, 0.15);
-  --shadow-lg: 0 8px 24px rgba(255, 105, 180, 0.2);
-  --shadow-bubble: 0 2px 8px rgba(255, 105, 180, 0.12);
+  --shadow-sm: 0 2px 4px rgba(233, 30, 99, 0.1);
+  --shadow-md: 0 4px 12px rgba(233, 30, 99, 0.15);
+  --shadow-lg: 0 8px 24px rgba(233, 30, 99, 0.2);
+  --shadow-bubble: 0 2px 8px rgba(233, 30, 99, 0.12);
 }
 
 /* Monokai theme - Classic code editor style */
