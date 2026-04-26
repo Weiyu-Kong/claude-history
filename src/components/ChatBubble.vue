@@ -124,7 +124,7 @@ defineExpose({ expandAll });
 .chat-bubble {
   display: flex;
   flex-direction: column;
-  max-width: 85%;
+  max-width: 50%;
   margin-bottom: 16px;
   animation: slideUp 0.4s ease-out;
   animation-fill-mode: both;
@@ -150,7 +150,7 @@ defineExpose({ expandAll });
 .chat-bubble.assistant {
   align-self: flex-start;
   animation-delay: 0.05s;
-  max-width: 90%;
+  max-width: 75%;
 }
 
 .bubble-header {
