@@ -27,51 +27,41 @@ describe('jsonl-parser', () => {
     fs.unlinkSync(testFilePath);
   });
 
-  test('parses valid JSONL lines', (done) => {
+  test('parses valid JSONL lines', async () => {
     const results = [];
-    parseStream(testFilePath, (obj) => {
+    await parseStream(testFilePath, (obj) => {
       results.push(obj);
     });
 
-    // Wait for stream to finish
-    setTimeout(() => {
-      expect(results.length).toBeGreaterThanOrEqual(6);
-      expect(results.find((r) => r.id === 1 && r.name === 'Alice')).toBeTruthy();
-      expect(results.find((r) => r.id === 2 && r.name === 'Bob')).toBeTruthy();
-      expect(results.find((r) => r.id === 3 && r.name === 'Charlie')).toBeTruthy();
-      done();
-    }, 100);
+    expect(results.length).toBeGreaterThanOrEqual(6);
+    expect(results.find((r) => r.id === 1 && r.name === 'Alice')).toBeTruthy();
+    expect(results.find((r) => r.id === 2 && r.name === 'Bob')).toBeTruthy();
+    expect(results.find((r) => r.id === 3 && r.name === 'Charlie')).toBeTruthy();
   });
 
-  test('skips malformed lines', (done) => {
+  test('skips malformed lines', async () => {
     const results = [];
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
-    parseStream(testFilePath, (obj) => {
+    await parseStream(testFilePath, (obj) => {
       results.push(obj);
     });
 
-    setTimeout(() => {
-      // Should not include malformed line
-      expect(results.find((r) => r === undefined || typeof r !== 'object')).toBeUndefined();
-      // Should have called warn for malformed line
-      expect(warnSpy).toHaveBeenCalled();
-      expect(warnSpy.mock.calls[0][0]).toContain('Skipped malformed line');
-      warnSpy.mockRestore();
-      done();
-    }, 100);
+    // Should not include malformed line
+    expect(results.find((r) => r === undefined || typeof r !== 'object')).toBeUndefined();
+    // Should have called warn for malformed line
+    expect(warnSpy).toHaveBeenCalled();
+    expect(warnSpy.mock.calls[0][0]).toContain('Skipped malformed line');
+    warnSpy.mockRestore();
   });
 
-  test('skips empty lines', (done) => {
+  test('skips empty lines', async () => {
     const results = [];
-    parseStream(testFilePath, (obj) => {
+    await parseStream(testFilePath, (obj) => {
       results.push(obj);
     });
 
-    setTimeout(() => {
-      // Empty lines should not produce results
-      expect(results.every((r) => r !== null && r !== undefined)).toBe(true);
-      done();
-    }, 100);
+    // Empty lines should not produce results
+    expect(results.every((r) => r !== null && r !== undefined)).toBe(true);
   });
 });

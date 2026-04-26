@@ -27,6 +27,9 @@ function getStore() {
 const conversationCache = new Map();
 const MAX_CACHE_SIZE = 20;
 
+// Track in-flight requests to prevent duplicate parsing
+const pendingRequests = new Map();
+
 function addToCache(filePath, messages) {
   // Evict oldest entry if at capacity
   if (conversationCache.size >= MAX_CACHE_SIZE) {
@@ -101,22 +104,28 @@ function registerIpcHandlers() {
         return { success: true, messages: cached, fromCache: true };
       }
 
-      // Stream-parse the JSONL file
-      const messages = [];
-      await new Promise((resolve, reject) => {
-        parseStream(filePath, (raw) => {
+      // If there's already a pending request for this file, await it
+      if (pendingRequests.has(filePath)) {
+        return pendingRequests.get(filePath);
+      }
+
+      // Create the parsing promise
+      const parsePromise = (async () => {
+        const messages = [];
+        await parseStream(filePath, (raw) => {
           const parsed = parseMessage(raw);
           messages.push(parsed);
         });
+        addToCache(filePath, messages);
+        return { success: true, messages, fromCache: false };
+      })();
 
-        // Wait for stream to finish
-        setTimeout(resolve, 50);
-      });
-
-      // Add to cache
-      addToCache(filePath, messages);
-
-      return { success: true, messages, fromCache: false };
+      pendingRequests.set(filePath, parsePromise);
+      try {
+        return await parsePromise;
+      } finally {
+        pendingRequests.delete(filePath);
+      }
     } catch (err) {
       console.error('[ipc-handlers] load-conversation error:', err);
       return { success: false, error: err.message };
