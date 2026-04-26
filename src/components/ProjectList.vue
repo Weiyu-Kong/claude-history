@@ -38,16 +38,34 @@
             <span class="project-name">{{ getDisplayName(project) }}</span>
             <span class="project-path">{{ getShortPath(project.path) }}</span>
           </div>
-          <div class="project-count">{{ project.conversations?.length || 0 }}</div>
+          <div class="project-actions">
+            <span class="project-count">{{ project.conversations?.length || 0 }}</span>
+            <button class="delete-btn" @click.stop="confirmDelete(project)" title="删除">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              </svg>
+            </button>
+          </div>
         </li>
       </ul>
     </div>
+
+    <ConfirmDialog
+      :show="showDeleteConfirm"
+      title="删除项目"
+      :message="`确定要删除 "${pendingDelete?.displayName}" 吗？`"
+      type="danger"
+      @confirm="handleDelete"
+      @cancel="showDeleteConfirm = false"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
 import SkeletonLoader from './SkeletonLoader.vue';
+import ConfirmDialog from './ConfirmDialog.vue';
 
 const props = defineProps({
   projects: Array,
@@ -57,6 +75,25 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['select', 'refresh', 'delete']);
+
+const showDeleteConfirm = ref(false);
+const pendingDelete = ref(null);
+
+function confirmDelete(project) {
+  pendingDelete.value = {
+    id: project.id,
+    displayName: getDisplayName(project)
+  };
+  showDeleteConfirm.value = true;
+}
+
+function handleDelete() {
+  if (pendingDelete.value) {
+    emit('delete', pendingDelete.value.id);
+  }
+  showDeleteConfirm.value = false;
+  pendingDelete.value = null;
+}
 
 function getDisplayName(project) {
   if (!project.name) {
@@ -163,6 +200,10 @@ function getShortPath(path) {
   background: var(--bg-tertiary);
 }
 
+.project-item:hover .delete-btn {
+  opacity: 1;
+}
+
 .project-item.active {
   background: var(--primary);
   color: white;
@@ -195,18 +236,53 @@ function getShortPath(path) {
   color: rgba(255, 255, 255, 0.7);
 }
 
+.project-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .project-count {
   font-size: var(--font-size-xs);
   color: var(--text-muted);
   background: var(--bg-tertiary);
   padding: 2px 8px;
   border-radius: var(--radius-full);
-  flex-shrink: 0;
 }
 
 .project-item.active .project-count {
   background: rgba(255, 255, 255, 0.2);
   color: white;
+}
+
+.delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: all var(--transition-fast);
+}
+
+.project-item.active .delete-btn {
+  opacity: 1;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.delete-btn:hover {
+  color: var(--color-error);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.project-item.active .delete-btn:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .empty-state,

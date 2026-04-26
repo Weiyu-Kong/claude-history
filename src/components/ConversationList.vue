@@ -22,10 +22,27 @@
             <span class="conv-title">{{ cleanTitle(conv.title) || '未命名' }}</span>
             <span v-if="conv.fileSize > 50 * 1024 * 1024" class="large-file-badge">大文件</span>
           </div>
-          <span class="conv-date">{{ formatDate(conv.updatedAt) }}</span>
+          <div class="conv-footer">
+            <span class="conv-date">{{ formatDate(conv.updatedAt) }}</span>
+            <button class="delete-btn" @click.stop="confirmDelete(conv)" title="删除">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              </svg>
+            </button>
+          </div>
         </li>
       </ul>
     </div>
+
+    <ConfirmDialog
+      :show="showDeleteConfirm"
+      title="删除对话"
+      :message="`确定要删除 "${pendingDelete?.displayName}" 吗？`"
+      type="danger"
+      @confirm="handleDelete"
+      @cancel="showDeleteConfirm = false"
+    />
   </div>
 </template>
 
@@ -34,6 +51,7 @@ import { ref, computed } from 'vue';
 import { cleanTitle } from '../utils/title-extractor.js';
 import SearchBar from './SearchBar.vue';
 import SkeletonLoader from './SkeletonLoader.vue';
+import ConfirmDialog from './ConfirmDialog.vue';
 
 const props = defineProps({
   conversations: Array,
@@ -44,6 +62,8 @@ const props = defineProps({
 const emit = defineEmits(['select', 'search', 'delete']);
 
 const searchQuery = ref('');
+const showDeleteConfirm = ref(false);
+const pendingDelete = ref(null);
 
 function handleSearch(query) {
   searchQuery.value = query;
@@ -51,6 +71,22 @@ function handleSearch(query) {
 
 function onSelect(conv) {
   emit('select', conv);
+}
+
+function confirmDelete(conv) {
+  pendingDelete.value = {
+    filePath: conv.filePath,
+    displayName: cleanTitle(conv.title) || '未命名'
+  };
+  showDeleteConfirm.value = true;
+}
+
+function handleDelete() {
+  if (pendingDelete.value) {
+    emit('delete', pendingDelete.value.filePath);
+  }
+  showDeleteConfirm.value = false;
+  pendingDelete.value = null;
 }
 
 const filteredConversations = computed(() => {
@@ -116,6 +152,10 @@ function formatDate(timestamp) {
   background: var(--bg-tertiary);
 }
 
+.conversation-item:hover .delete-btn {
+  opacity: 1;
+}
+
 .conversation-item.active {
   background: var(--primary);
   color: white;
@@ -150,6 +190,12 @@ function formatDate(timestamp) {
   background: rgba(255, 255, 255, 0.2);
 }
 
+.conv-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .conv-date {
   font-size: var(--font-size-xs);
   color: var(--text-muted);
@@ -157,6 +203,36 @@ function formatDate(timestamp) {
 
 .conversation-item.active .conv-date {
   color: rgba(255, 255, 255, 0.7);
+}
+
+.delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: all var(--transition-fast);
+}
+
+.conversation-item.active .delete-btn {
+  opacity: 1;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.delete-btn:hover {
+  color: var(--color-error);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.conversation-item.active .delete-btn:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .empty-state {
