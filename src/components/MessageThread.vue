@@ -10,27 +10,27 @@
 
     <div v-else class="thread-container">
       <div class="thread-header">
-        <div class="thread-title-row">
-          <h2>{{ cleanTitle(conversation.title) || '未命名对话' }}</h2>
-          <span class="message-count">{{ messageCount }} 条消息</span>
+        <div class="thread-header-right">
+          <div class="thread-title-row">
+            <h2>{{ cleanTitle(conversation.title) || '未命名对话' }}</h2>
+            <span class="message-count">{{ messageCount }} 条消息</span>
+          </div>
+          <span class="conversation-date">{{ conversationTime }}</span>
         </div>
-        <button class="expand-btn" @click="toggleAll">
-          {{ allExpanded ? '收起全部' : '展开全部' }}
-        </button>
-      </div>
-
-      <!-- Session Info Bar -->
-      <div class="session-info-bar">
-        <div class="session-info-left">
+        <div class="thread-header-left">
           <button class="resume-btn" @click="resumeConversation" title="在终端中恢复会话">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polygon points="5 3 19 12 5 21 5 3"></polygon>
             </svg>
             恢复会话
           </button>
-          <span class="session-divider">|</span>
-          <span class="session-time">{{ conversationTime }}</span>
+          <button class="expand-btn" @click="toggleAll">
+            {{ allExpanded ? '收起全部' : '展开全部' }}
+          </button>
         </div>
+      </div>
+
+      <div class="session-command-bar">
         <div class="session-command" @click="copyCommand">
           <code>{{ resumeCommand }}</code>
           <button class="copy-btn" :class="{ copied: commandCopied }">
@@ -45,7 +45,7 @@
         </div>
       </div>
 
-      <div class="thread-messages" ref="messagesContainer">
+      <div class="thread-messages" ref="messagesContainer" @scroll="handleScroll">
         <div class="messages-inner">
           <template v-for="(message, index) in messages" :key="index">
             <ChatBubble
@@ -72,6 +72,14 @@
           </template>
         </div>
       </div>
+
+      <transition name="fade">
+        <button v-if="showBackToTop" class="back-to-top-btn" @click="scrollToTop" title="回到顶部">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="18 15 12 9 6 15"></polyline>
+          </svg>
+        </button>
+      </transition>
     </div>
   </div>
 </template>
@@ -97,6 +105,7 @@ const messagesContainer = ref(null);
 const allExpanded = ref(false);
 const bubbleRefs = ref({});
 const commandCopied = ref(false);
+const showBackToTop = ref(false);
 
 // Build resume command
 const resumeCommand = computed(() => {
@@ -110,14 +119,11 @@ const resumeCommand = computed(() => {
 const conversationTime = computed(() => {
   const timestamp = props.conversation?.updatedAt;
   if (!timestamp || timestamp === 0) {
-    // Fallback: try to extract time from file path or file name
     const filePath = props.conversation?.filePath;
     if (filePath) {
-      // Try to find timestamp in filename (format: session-1234567890.jsonl)
       const match = filePath.match(/(\d{10,13})/);
       if (match) {
         const ts = parseInt(match[1]);
-        // Handle both second and millisecond timestamps
         const date = new Date(ts > 9999999999 ? ts : ts * 1000);
         if (!isNaN(date.getTime())) {
           return date.toLocaleString('zh-CN', {
@@ -216,6 +222,7 @@ watch(() => props.conversation, () => {
   bubbleRefs.value = {};
   allExpanded.value = false;
   commandCopied.value = false;
+  showBackToTop.value = false;
 });
 
 // Auto-scroll to bottom on new messages
@@ -225,6 +232,19 @@ watch(messages, async () => {
     messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
   }
 }, { deep: true });
+
+// Handle scroll to show/hide back-to-top button
+function handleScroll() {
+  if (messagesContainer.value) {
+    showBackToTop.value = messagesContainer.value.scrollTop > 300;
+  }
+}
+
+function scrollToTop() {
+  if (messagesContainer.value) {
+    messagesContainer.value.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
 </script>
 
 <style scoped>
@@ -255,15 +275,31 @@ watch(messages, async () => {
   display: flex;
   flex-direction: column;
   height: 100%;
+  position: relative;
 }
 
 .thread-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   padding: 16px 24px;
   border-bottom: 1px solid var(--border-light);
   background: var(--bg-secondary);
+  gap: 24px;
+}
+
+.thread-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.thread-header-right {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
 }
 
 .thread-title-row {
@@ -282,6 +318,11 @@ watch(messages, async () => {
   text-overflow: ellipsis;
 }
 
+.conversation-date {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
 .message-count {
   font-size: var(--font-size-xs);
   color: var(--text-muted);
@@ -289,6 +330,25 @@ watch(messages, async () => {
   padding: 4px 8px;
   border-radius: var(--radius-full);
   flex-shrink: 0;
+}
+
+.resume-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: white;
+  background: var(--primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.resume-btn:hover {
+  background: var(--primary-hover);
 }
 
 .expand-btn {
@@ -313,49 +373,12 @@ watch(messages, async () => {
   cursor: not-allowed;
 }
 
-/* Session Info Bar */
-.session-info-bar {
+.session-command-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: 12px 24px;
   background: var(--bg-tertiary);
   border-bottom: 1px solid var(--border-light);
-  gap: 16px;
-}
-
-.session-info-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.resume-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  font-size: var(--font-size-sm);
-  font-weight: 500;
-  color: white;
-  background: var(--primary);
-  border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.resume-btn:hover {
-  background: var(--primary-hover);
-}
-
-.session-divider {
-  color: var(--text-muted);
-}
-
-.session-time {
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
 }
 
 .session-command {
@@ -414,5 +437,39 @@ watch(messages, async () => {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
+}
+
+.back-to-top-btn {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  width: 40px;
+  height: 40px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-fast);
+  z-index: 10;
+}
+
+.back-to-top-btn:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

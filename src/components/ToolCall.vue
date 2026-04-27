@@ -178,7 +178,7 @@ defineExpose({ expandAll, collapseAll });
   align-items: center;
   gap: 6px;
   font-weight: 600;
-  color: var(--primary);
+  color: var(--text-primary);
   background: linear-gradient(135deg, rgba(180, 83, 9, 0.1), rgba(245, 158, 11, 0.1));
   padding: 3px 10px;
   border-radius: var(--radius-sm);
