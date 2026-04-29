@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, defineExpose } from 'vue';
 
 const props = defineProps({
   block: {
@@ -50,6 +50,11 @@ const input = computed(() => {
 const filePath = computed(() => input.value.file_path || '');
 const oldString = computed(() => input.value.old_string || '');
 const newString = computed(() => input.value.new_string || '');
+
+function expandAll() {}
+function collapseAll() {}
+
+defineExpose({ expandAll, collapseAll });
 </script>
 
 <style scoped>

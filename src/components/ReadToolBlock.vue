@@ -32,7 +32,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, defineExpose } from 'vue';
 
 const props = defineProps({
   block: {
@@ -55,6 +55,11 @@ const input = computed(() => {
 const filePath = computed(() => input.value.file_path || '');
 const offset = computed(() => input.value.offset ?? null);
 const limit = computed(() => input.value.limit ?? null);
+
+function expandAll() {}
+function collapseAll() {}
+
+defineExpose({ expandAll, collapseAll });
 </script>
 
 <style scoped>

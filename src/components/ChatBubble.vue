@@ -40,11 +40,12 @@
           </span>
         </div>
         <TaskCreateBlock v-if="block.type === 'tool_use' && block.name === 'TaskCreate'" :block="block" />
+        <TaskUpdateBlock v-else-if="block.type === 'tool_use' && (block.name === 'TaskUpdate' || block.toolName === 'TaskUpdate')" :block="block" />
         <AgentToolBlock v-else-if="block.type === 'tool_use' && (block.name === 'Agent' || block.toolName === 'Agent')" :block="block" :ref="el => setChildRef('agent_' + i, el)" />
         <TodoWriteBlock v-else-if="block.type === 'tool_use' && (block.name === 'TodoWrite' || block.toolName === 'TodoWrite')" :block="block" />
-        <WriteToolBlock v-else-if="block.type === 'tool_use' && block.name === 'Write'" :block="block" />
-        <EditToolBlock v-else-if="block.type === 'tool_use' && block.name === 'Edit'" :block="block" />
-        <ReadToolBlock v-else-if="block.type === 'tool_use' && block.name === 'Read'" :block="block" />
+        <WriteToolBlock v-else-if="block.type === 'tool_use' && block.name === 'Write'" :block="block" :ref="el => setChildRef('write_' + i, el)" />
+        <EditToolBlock v-else-if="block.type === 'tool_use' && block.name === 'Edit'" :block="block" :ref="el => setChildRef('edit_' + i, el)" />
+        <ReadToolBlock v-else-if="block.type === 'tool_use' && block.name === 'Read'" :block="block" :ref="el => setChildRef('read_' + i, el)" />
         <ToolCall v-else-if="block.type === 'tool_use'" :block="block" :ref="el => setChildRef('tool_' + i, el)" />
         <ToolResult v-else-if="block.type === 'tool_result'" :block="block" :ref="el => setChildRef('result_' + i, el)" />
         <ThinkingBlock v-else-if="block.type === 'thinking'" :block="block" :ref="el => setChildRef('thinking_' + i, el)" />
@@ -79,6 +80,7 @@ import EditToolBlock from './EditToolBlock.vue';
 import ReadToolBlock from './ReadToolBlock.vue';
 import AgentToolBlock from './AgentToolBlock.vue';
 import TodoWriteBlock from './TodoWriteBlock.vue';
+import TaskUpdateBlock from './TaskUpdateBlock.vue';
 
 const props = defineProps({
   blocks: {
@@ -174,15 +176,16 @@ defineExpose({ expandAll, collapseAll });
 .chat-bubble {
   display: flex;
   flex-direction: column;
-  max-width: 80%;
   margin-bottom: 12px;
 }
 
 .chat-bubble.user {
+  max-width: 80%;
   align-self: flex-end;
 }
 
 .chat-bubble.assistant {
+  max-width: 100%;
   align-self: flex-start;
 }
 
@@ -234,13 +237,16 @@ defineExpose({ expandAll, collapseAll });
 .chat-bubble.assistant .bubble-content {
   background: var(--bubble-claude-bg);
   color: var(--bubble-claude-text);
-  border-radius: var(--radius-sm) var(--radius-lg) var(--radius-lg) var(--radius-lg);
+  border-radius: var(--radius-lg);
 }
 
 .text-content {
-  white-space: pre-wrap;
   word-break: break-word;
-  line-height: 1.6;
+  line-height: 1.7;
+}
+
+.chat-bubble.assistant .text-content {
+  line-height: 1.8;
 }
 
 .command-wrapper {
@@ -263,7 +269,12 @@ defineExpose({ expandAll, collapseAll });
 .markdown-content :deep(h2),
 .markdown-content :deep(h3) {
   margin: 0.8em 0 0.4em;
+  font-weight: 600;
 }
+
+.markdown-content :deep(h1) { font-size: 1.3em; }
+.markdown-content :deep(h2) { font-size: 1.15em; }
+.markdown-content :deep(h3) { font-size: 1.05em; }
 
 .markdown-content :deep(p) {
   margin: 0.5em 0;
@@ -275,12 +286,16 @@ defineExpose({ expandAll, collapseAll });
   padding-left: 1.5em;
 }
 
+.markdown-content :deep(li) {
+  margin: 0.2em 0;
+}
+
 .markdown-content :deep(code) {
   background-color: rgba(0, 0, 0, 0.08);
   padding: 0.15em 0.4em;
   border-radius: 3px;
   font-family: var(--font-mono);
-  font-size: 0.9em;
+  font-size: 0.88em;
 }
 
 .chat-bubble.user .markdown-content :deep(code) {
@@ -288,11 +303,12 @@ defineExpose({ expandAll, collapseAll });
 }
 
 .markdown-content :deep(pre) {
-  background-color: rgba(0, 0, 0, 0.06);
-  padding: 12px;
-  border-radius: var(--radius-sm);
+  background-color: var(--bg-tertiary);
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
   overflow-x: auto;
   margin: 0.8em 0;
+  border: 1px solid var(--border-color);
 }
 
 .chat-bubble.user .markdown-content :deep(pre) {
@@ -305,15 +321,59 @@ defineExpose({ expandAll, collapseAll });
 }
 
 .markdown-content :deep(blockquote) {
-  border-left: 3px solid currentColor;
+  border-left: 3px solid var(--primary);
   margin: 0.5em 0;
-  padding-left: 1em;
-  opacity: 0.8;
+  padding: 0.3em 0 0.3em 1em;
+  opacity: 0.85;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.markdown-content :deep(table) {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.8em 0;
+  font-size: 0.92em;
+}
+
+.markdown-content :deep(thead) {
+  background: var(--bg-tertiary);
+}
+
+.markdown-content :deep(th) {
+  padding: 8px 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.9em;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.markdown-content :deep(td) {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.markdown-content :deep(tr:hover td) {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.markdown-content :deep(hr) {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 1em 0;
 }
 
 .markdown-content :deep(a) {
-  color: inherit;
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.markdown-content :deep(a:hover) {
   text-decoration: underline;
+}
+
+.markdown-content :deep(strong) {
+  font-weight: 600;
 }
 
 .image-block {
@@ -324,7 +384,7 @@ defineExpose({ expandAll, collapseAll });
   max-width: 100%;
   max-height: 400px;
   border-radius: var(--radius-sm);
-  cursor: pointer;
+  cursor: zoom-in;
 }
 
 .image-placeholder {
@@ -336,10 +396,6 @@ defineExpose({ expandAll, collapseAll });
   background: var(--bg-tertiary);
   padding: 6px 12px;
   border-radius: var(--radius-sm);
-}
-
-.attached-image {
-  cursor: zoom-in;
 }
 </style>
 
