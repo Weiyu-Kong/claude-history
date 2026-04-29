@@ -71,20 +71,20 @@
 
 <script setup>
 import { computed, ref, defineExpose } from 'vue';
-import { renderMarkdown, parseCommandContent } from '../utils/markdown.js';
-import ToolCall from './ToolCall.vue';
-import ToolResult from './ToolResult.vue';
+import { renderMarkdown, parseCommandContent } from '../../utils/markdown.js';
+import ToolCall from '../tools/ToolCall.vue';
+import ToolResult from '../tools/ToolResult.vue';
 import ThinkingBlock from './ThinkingBlock.vue';
-import TaskCreateBlock from './TaskCreateBlock.vue';
+import TaskCreateBlock from '../tools/TaskCreateBlock.vue';
 import CommandBlock from './CommandBlock.vue';
-import WriteToolBlock from './WriteToolBlock.vue';
-import EditToolBlock from './EditToolBlock.vue';
-import ReadToolBlock from './ReadToolBlock.vue';
-import AgentToolBlock from './AgentToolBlock.vue';
-import TodoWriteBlock from './TodoWriteBlock.vue';
-import TaskUpdateBlock from './TaskUpdateBlock.vue';
-import AskUserQuestionBlock from './AskUserQuestionBlock.vue';
-import TaskOutputBlock from './TaskOutputBlock.vue';
+import WriteToolBlock from '../tools/WriteToolBlock.vue';
+import EditToolBlock from '../tools/EditToolBlock.vue';
+import ReadToolBlock from '../tools/ReadToolBlock.vue';
+import AgentToolBlock from '../tools/AgentToolBlock.vue';
+import TodoWriteBlock from '../tools/TodoWriteBlock.vue';
+import TaskUpdateBlock from '../tools/TaskUpdateBlock.vue';
+import AskUserQuestionBlock from '../tools/AskUserQuestionBlock.vue';
+import TaskOutputBlock from '../tools/TaskOutputBlock.vue';
 
 const props = defineProps({
   blocks: {

@@ -86,11 +86,11 @@
 
 <script setup>
 import { ref, computed, watch, nextTick } from 'vue';
-import { cleanTitle } from '../utils/title-extractor.js';
-import SkeletonLoader from './SkeletonLoader.vue';
-import ChatBubble from './ChatBubble.vue';
-import PermissionBadge from './PermissionBadge.vue';
-import FileSnapshot from './FileSnapshot.vue';
+import { cleanTitle } from '../../utils/title-extractor.js';
+import SkeletonLoader from '../common/SkeletonLoader.vue';
+import ChatBubble from '../chat/ChatBubble.vue';
+import PermissionBadge from '../chat/PermissionBadge.vue';
+import FileSnapshot from '../chat/FileSnapshot.vue';
 
 const props = defineProps({
   conversation: Object,

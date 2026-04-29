@@ -64,8 +64,8 @@
 
 <script setup>
 import { ref } from 'vue';
-import SkeletonLoader from './SkeletonLoader.vue';
-import ConfirmDialog from './ConfirmDialog.vue';
+import SkeletonLoader from '../common/SkeletonLoader.vue';
+import ConfirmDialog from '../common/ConfirmDialog.vue';
 
 const props = defineProps({
   projects: Array,

@@ -1,27 +1,17 @@
 # Claude History Viewer
 
-一款用于浏览本地 Claude Code 对话历史的桌面应用。
+一款用于浏览和管理本地 Claude Code 对话历史的桌面应用。
 
 ## 功能特性
 
 - **三栏可折叠布局**：项目列表 → 对话列表 → 消息详情，左右面板支持一键收起/展开
 - **优雅的对话展示**：支持 Markdown 渲染、代码高亮、表格样式、图片点击放大预览
-- **主题切换**：支持简约白/深邃黑/暖色调/Monokai 四种主题
+- **主题切换**：支持简约白 / 深邃黑 / 暖色调 / Monokai 四种主题
 - **会话恢复**：一键在终端中恢复历史会话，继续之前的对话
-- **专用工具展示组件**：
-  - **Agent**：子代理调度卡片，展示 subagent_type、description、可折叠 prompt
-  - **AskUserQuestion**：交互式问题卡片，展示选项列表（A/B/C）及描述
-  - **TodoWrite**：任务清单列表，状态图标 + 进度统计
-  - **TaskCreate / TaskUpdate**：任务创建/更新卡片，状态徽章
-  - **TaskOutput**：任务输出卡片，等待状态动画 + 超时时间
-  - **Edit / Write**：文件修改 diff 对比展示
-  - **Read**：文件读取路径清晰展示
-  - **Bash**：命令与描述分开展示
-  - **Thinking**：思维过程折叠展示
-- **智能标题清理**：自动移除命令标签噪音
+- **专用工具展示组件**：Agent 子代理、AskUserQuestion 交互问题、TodoWrite 任务清单、Edit/Write 文件 diff 对比、Read 文件路径、Bash 命令、Thinking 思维过程等
+- **智能标题提取**：自动从对话内容中提取并生成标题
 - **中文界面**：完整的本地化支持
-- **删除确认**：数据安全保护
-- **回到顶部**：长对话快速返回
+- **安全删除**：支持删除对话和项目（同时移除磁盘文件和数据库记录）
 
 ## 截图预览
 
@@ -62,132 +52,137 @@
 
 ## 快速开始
 
-### 1. 安装依赖（推荐使用 cnpm）
+### 安装依赖
 
 ```bash
-# 全局安装 cnpm（如果没有安装过）
-npm install -g cnpm --registry=https://registry.npmmirror.com
-
-# 安装项目依赖
-cnpm install
+# 推荐 pnpm（也可使用 npm 或 cnpm）
+pnpm install
 
 # 如果 Electron 下载慢，使用镜像
 export ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/
-cnpm install
+pnpm install
 ```
 
-### 2. 开发模式运行
+### 开发模式
 
 ```bash
-cnpm run dev
+pnpm electron:dev
 ```
 
-### 3. 构建应用
+### 构建应用
 
 ```bash
-# 构建 macOS 应用
-cnpm run electron:build
+pnpm electron:build
 ```
 
 构建完成后，应用会生成在 `out` 目录下。
 
 ## 技术栈
 
-- **前端框架**：Vue 3 + Vite
-- **状态管理**：Pinia
-- **桌面应用**：Electron
-- **数据库**：SQLite (better-sqlite3)
-- **Markdown**：marked + DOMPurify
+| 层级 | 技术 |
+|------|------|
+| 前端框架 | Vue 3 + Vite |
+| 状态管理 | Pinia |
+| 桌面应用 | Electron |
+| 数据库 | SQLite (better-sqlite3) |
+| Markdown | marked + DOMPurify |
+| 代码高亮 | highlight.js |
 
 ## 项目结构
 
 ```
 claude-history/
-├── electron/           # Electron 主进程
-│   ├── index.js          # 入口文件
-│   ├── preload.js        # 预加载脚本
-│   ├── ipc-handlers.js   # IPC 处理器
-│   ├── message-parser.js # 对话解析器
-│   ├── file-scanner.js   # 项目扫描器
-│   └── store.js          # SQLite 数据库
-├── src/               # Vue 渲染进程
-│   ├── components/    # Vue 组件
-│   │   ├── ChatBubble.vue           # 聊天气泡
-│   │   ├── ConversationList.vue     # 对话列表
-│   │   ├── MessageThread.vue        # 消息线程
-│   │   ├── ProjectList.vue          # 项目列表
-│   │   ├── ThemeSelector.vue        # 主题选择
-│   │   ├── AgentToolBlock.vue       # Agent 子代理
-│   │   ├── AskUserQuestionBlock.vue # 交互问题
-│   │   ├── TodoWriteBlock.vue       # 任务清单
-│   │   ├── TaskCreateBlock.vue      # 任务创建
-│   │   ├── TaskUpdateBlock.vue      # 任务更新
-│   │   ├── TaskOutputBlock.vue      # 任务输出
-│   │   ├── WriteToolBlock.vue       # 文件写入
-│   │   ├── EditToolBlock.vue        # 文件编辑
-│   │   ├── ReadToolBlock.vue        # 文件读取
-│   │   ├── ToolCall.vue             # 通用工具调用
-│   │   ├── ToolResult.vue           # 工具结果
-│   │   └── ThinkingBlock.vue        # 思维过程
-│   ├── stores/        # Pinia 状态管理
-│   └── utils/         # 工具函数
-├── preview/           # 应用截图
-└── build/             # 应用图标
+├── electron/                  # Electron 主进程
+│   ├── index.js                 # 主进程入口，创建窗口
+│   ├── preload.js               # 预加载脚本，暴露 IPC 接口
+│   ├── ipc-handlers.js          # IPC 通信处理器
+│   ├── file-scanner.js          # 扫描 ~/.claude/projects 目录
+│   ├── jsonl-parser.js          # 流式 JSONL 解析器
+│   ├── message-parser.js        # 消息解析与结构化
+│   ├── store.js                 # SQLite 数据库操作
+│   ├── markdown.js              # Markdown 渲染（主进程端）
+│   └── title-extractor.js       # 标题提取工具
+├── src/                       # Vue 渲染进程
+│   ├── App.vue                  # 根组件，三栏布局
+│   ├── main.js                  # 渲染进程入口
+│   ├── components/
+│   │   ├── layout/              # 页面级布局组件
+│   │   │   ├── ProjectList.vue        # 左栏 - 项目列表
+│   │   │   ├── ConversationList.vue   # 中栏 - 对话列表
+│   │   │   └── MessageThread.vue      # 右栏 - 消息详情
+│   │   ├── chat/                # 消息内容渲染
+│   │   │   ├── ChatBubble.vue         # 聊天气泡容器
+│   │   │   ├── ThinkingBlock.vue      # 思维过程折叠
+│   │   │   ├── CommandBlock.vue       # 命令内容块
+│   │   │   ├── PermissionBadge.vue    # 权限模式徽章
+│   │   │   └── FileSnapshot.vue       # 文件快照
+│   │   ├── tools/               # Claude 工具调用组件
+│   │   │   ├── ToolCall.vue           # 通用工具调用
+│   │   │   ├── ToolResult.vue         # 工具执行结果
+│   │   │   ├── AgentToolBlock.vue     # Agent 子代理
+│   │   │   ├── EditToolBlock.vue      # 文件编辑 diff
+│   │   │   ├── ReadToolBlock.vue      # 文件读取
+│   │   │   ├── WriteToolBlock.vue     # 文件写入
+│   │   │   ├── TaskCreateBlock.vue    # 任务创建
+│   │   │   ├── TaskUpdateBlock.vue    # 任务更新
+│   │   │   ├── TaskOutputBlock.vue    # 任务输出
+│   │   │   ├── TodoWriteBlock.vue     # 任务清单
+│   │   │   └── AskUserQuestionBlock.vue # 交互问题
+│   │   └── common/              # 通用 UI 组件
+│   │       ├── SearchBar.vue          # 搜索输入框
+│   │       ├── SkeletonLoader.vue     # 骨架屏加载
+│   │       ├── ConfirmDialog.vue      # 确认弹窗
+│   │       └── ThemeSelector.vue      # 主题选择器
+│   ├── stores/                  # Pinia 状态管理
+│   │   ├── projects.js             # 项目数据
+│   │   ├── conversations.js        # 对话数据与缓存
+│   │   └── theme.js                # 主题状态
+│   ├── styles/                  # 全局样式
+│   │   ├── variables.css           # CSS 变量定义
+│   │   └── global.css              # 全局基础样式
+│   └── utils/                   # 工具函数
+│       ├── markdown.js             # Markdown 渲染
+│       └── title-extractor.js      # 标题提取与清理
+├── preview/                   # 应用截图
+└── build/                     # 应用图标
 ```
 
 ## 数据来源
 
-应用读取 `~/.claude/projects/` 目录下的对话记录文件（`.jsonl` 格式）。
+应用读取 `~/.claude/projects/` 目录下的 Claude Code 对话记录文件（`.jsonl` 格式）。
 
-## 快捷键
-
-| 快捷键 | 功能 |
-|--------|------|
-| `Ctrl+K` (Windows) / `Cmd+K` (Mac) | 打开/关闭开发者工具 |
+数据流：`磁盘文件` → `file-scanner 扫描` → `SQLite 缓存` → `Pinia Store` → `Vue 组件渲染`
 
 ## 使用技巧
 
-### 面板折叠
-- 点击面板分隔线旁的箭头按钮可收起/展开项目列表和对话列表
-- 收起后获得更大的对话详情查看空间
-
-### 会话恢复
-1. 在右侧消息详情中，点击「恢复会话」按钮
-2. 应用会自动打开终端，切换到对应项目目录并执行 `claude --resume`
-3. 也可以点击命令区域一键复制恢复命令
-
-### 展开/折叠
-- 使用标题栏的「展开全部」/「收起全部」按钮批量操作
-- 各工具调用、思维过程、工具结果均支持独立展开/折叠
-
-### 搜索对话
-- 在中间对话列表顶部使用搜索框
-- 支持按标题关键词过滤
-
-### 调整面板宽度
-- 拖拽面板之间的分隔线可调整各栏宽度
-
-### 图片预览
-- 点击对话中的图片可全屏放大预览
-- 点击遮罩层或按 Escape 关闭预览
+| 功能 | 操作 |
+|------|------|
+| 面板折叠/展开 | 点击面板分隔线旁的箭头按钮 |
+| 调整面板宽度 | 拖拽面板之间的分隔线 |
+| 搜索对话 | 在对话列表顶部搜索框输入关键词 |
+| 恢复会话 | 点击「恢复会话」按钮，自动打开终端执行 `claude --resume` |
+| 复制恢复命令 | 点击命令区域一键复制 |
+| 展开/折叠全部 | 使用消息详情标题栏的「展开全部」/「收起全部」按钮 |
+| 图片预览 | 点击图片全屏放大，点击遮罩或按 Escape 关闭 |
+| 开发者工具 | `Ctrl+K` (Windows) / `Cmd+K` (Mac) |
 
 ## 常见问题
 
 ### Electron 下载失败
 
 ```bash
-# 设置 Electron 镜像
 export ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/
-cnpm install
+pnpm install
 ```
 
 ### macOS 上提示"无法打开"
 
-首次运行需要在"系统偏好设置 → 安全性与隐私"中允许应用运行。
+首次运行需要在「系统偏好设置 → 安全性与隐私」中允许应用运行。
 
 ### 构建失败
 
 确保已安装 Xcode Command Line Tools：
+
 ```bash
 xcode-select --install
 ```

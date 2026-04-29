@@ -46,10 +46,10 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { cleanTitle } from '../utils/title-extractor.js';
-import { useConversationsStore } from '../stores/conversations.js';
-import SearchBar from './SearchBar.vue';
-import ConfirmDialog from './ConfirmDialog.vue';
+import { cleanTitle } from '../../utils/title-extractor.js';
+import { useConversationsStore } from '../../stores/conversations.js';
+import SearchBar from '../common/SearchBar.vue';
+import ConfirmDialog from '../common/ConfirmDialog.vue';
 
 const conversationsStore = useConversationsStore();
 const titleMap = conversationsStore.titleMap;

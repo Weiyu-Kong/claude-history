@@ -85,10 +85,10 @@ import { ref, computed, onMounted } from 'vue';
 import { useProjectsStore } from './stores/projects';
 import { useConversationsStore } from './stores/conversations';
 import { useThemeStore } from './stores/theme';
-import ProjectList from './components/ProjectList.vue';
-import ConversationList from './components/ConversationList.vue';
-import MessageThread from './components/MessageThread.vue';
-import ThemeSelector from './components/ThemeSelector.vue';
+import ProjectList from './components/layout/ProjectList.vue';
+import ConversationList from './components/layout/ConversationList.vue';
+import MessageThread from './components/layout/MessageThread.vue';
+import ThemeSelector from './components/common/ThemeSelector.vue';
 
 const projectsStore = useProjectsStore();
 const conversationsStore = useConversationsStore();

@@ -25,7 +25,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { useThemeStore } from '../stores/theme';
+import { useThemeStore } from '../../stores/theme';
 
 const themeStore = useThemeStore();
 const showDropdown = ref(false);
