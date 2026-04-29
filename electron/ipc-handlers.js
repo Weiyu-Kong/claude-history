@@ -192,9 +192,16 @@ function registerIpcHandlers() {
     }
   });
 
-  // 7. delete-conversation — Delete conversation from SQLite
+  // 7. delete-conversation — Delete conversation file and SQLite record
   ipcMain.handle('delete-conversation', async (_, filePath) => {
     try {
+      // Delete the actual .jsonl file from disk
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+      // Remove from in-memory cache
+      conversationCache.delete(filePath);
+      // Remove from SQLite
       const store = getStore();
       store.deleteConversation(filePath);
       return { success: true };
@@ -204,14 +211,27 @@ function registerIpcHandlers() {
     }
   });
 
-  // 8. delete-project — Delete project and its conversations from SQLite
+  // 8. delete-project — Delete project folder and SQLite records
   ipcMain.handle('delete-project', async (_, projectId) => {
     try {
       const store = getStore();
       // projectId is actually the folder name (e.g., "-Users-edy-my-space-claude-history")
-      // Find the project in DB by its path
       const projectsDir = path.join(process.env.HOME || '/home/user', '.claude', 'projects');
       const projectPath = path.join(projectsDir, projectId);
+
+      // Delete the actual project folder from disk
+      if (fs.existsSync(projectPath)) {
+        fs.rmSync(projectPath, { recursive: true, force: true });
+      }
+
+      // Clear cached conversations for this project
+      for (const key of conversationCache.keys()) {
+        if (key.startsWith(projectPath + path.sep)) {
+          conversationCache.delete(key);
+        }
+      }
+
+      // Remove from SQLite
       const dbProject = store.getProjectByPath(projectPath);
       if (dbProject) {
         store.deleteProject(dbProject.id);
