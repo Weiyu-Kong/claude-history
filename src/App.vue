@@ -1,7 +1,11 @@
 <template>
   <div id="app">
     <div class="app-container">
-      <aside class="panel panel-left" :style="{ width: leftPanelWidth + 'px' }">
+      <aside
+        class="panel panel-left"
+        :class="{ collapsed: leftCollapsed }"
+        :style="{ width: leftCollapsed ? '0px' : leftPanelWidth + 'px' }"
+      >
         <ProjectList
           :projects="projectsStore.projects"
           :selectedId="projectsStore.selectedProjectId"
@@ -13,11 +17,29 @@
         />
       </aside>
 
-      <div class="resize-handle" @mousedown="startResize('left', $event)">
-        <div class="handle-line"></div>
+      <div class="panel-divider">
+        <button v-if="leftCollapsed" class="expand-btn" @click="leftCollapsed = false" title="展开项目列表">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 5l7 7-7 7"></path>
+          </svg>
+        </button>
+        <template v-else>
+          <div class="resize-handle" @mousedown="startResize('left', $event)">
+            <div class="handle-line"></div>
+          </div>
+          <button class="collapse-btn" @click="leftCollapsed = true" title="收起项目列表">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M15 5l-7 7 7 7"></path>
+            </svg>
+          </button>
+        </template>
       </div>
 
-      <aside class="panel panel-middle" :style="{ width: middlePanelWidth + 'px' }">
+      <aside
+        class="panel panel-middle"
+        :class="{ collapsed: middleCollapsed }"
+        :style="{ width: middleCollapsed ? '0px' : middlePanelWidth + 'px' }"
+      >
         <div class="panel-header-actions">
           <ThemeSelector />
         </div>
@@ -29,11 +51,25 @@
         />
       </aside>
 
-      <div class="resize-handle" @mousedown="startResize('right', $event)">
-        <div class="handle-line"></div>
+      <div class="panel-divider">
+        <button v-if="middleCollapsed" class="expand-btn" @click="middleCollapsed = false" title="展开对话列表">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 5l7 7-7 7"></path>
+          </svg>
+        </button>
+        <template v-else>
+          <div class="resize-handle" @mousedown="startResize('right', $event)">
+            <div class="handle-line"></div>
+          </div>
+          <button class="collapse-btn" @click="middleCollapsed = true" title="收起对话列表">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M15 5l-7 7 7 7"></path>
+            </svg>
+          </button>
+        </template>
       </div>
 
-      <main class="panel panel-right" :style="{ minWidth: rightPanelMinWidth + 'px' }">
+      <main class="panel panel-right">
         <MessageThread
           :conversation="conversationsStore.activeConversation"
           :loading="conversationsStore.loading"
@@ -61,6 +97,8 @@ const themeStore = useThemeStore();
 const leftPanelWidth = ref(240);
 const middlePanelWidth = ref(300);
 const rightPanelMinWidth = 400;
+const leftCollapsed = ref(false);
+const middleCollapsed = ref(false);
 
 const currentConversations = computed(() => {
   return projectsStore.selectedProject?.conversations || [];
@@ -156,6 +194,12 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transition: width 0.2s ease;
+}
+
+.panel.collapsed {
+  width: 0 !important;
+  pointer-events: none;
 }
 
 .panel-left {
@@ -176,6 +220,34 @@ onMounted(() => {
   padding: 12px 16px;
   border-bottom: 1px solid var(--border-light);
   background: var(--bg-secondary);
+}
+
+.panel-divider {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.expand-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 48px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all var(--transition-fast);
+}
+
+.expand-btn:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
 }
 
 .resize-handle {
@@ -204,5 +276,25 @@ onMounted(() => {
   background-color: var(--border-color);
   border-radius: var(--radius-full);
   transition: all var(--transition-fast);
+}
+
+.collapse-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 32px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  margin-top: 4px;
+}
+
+.collapse-btn:hover {
+  background: var(--bg-tertiary);
+  color: var(--primary);
 }
 </style>
