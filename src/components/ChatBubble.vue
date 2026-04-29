@@ -46,6 +46,8 @@
         <WriteToolBlock v-else-if="block.type === 'tool_use' && block.name === 'Write'" :block="block" :ref="el => setChildRef('write_' + i, el)" />
         <EditToolBlock v-else-if="block.type === 'tool_use' && block.name === 'Edit'" :block="block" :ref="el => setChildRef('edit_' + i, el)" />
         <ReadToolBlock v-else-if="block.type === 'tool_use' && block.name === 'Read'" :block="block" :ref="el => setChildRef('read_' + i, el)" />
+        <AskUserQuestionBlock v-else-if="block.type === 'tool_use' && (block.name === 'AskUserQuestion' || block.toolName === 'AskUserQuestion')" :block="block" />
+        <TaskOutputBlock v-else-if="block.type === 'tool_use' && (block.name === 'TaskOutput' || block.toolName === 'TaskOutput')" :block="block" />
         <ToolCall v-else-if="block.type === 'tool_use'" :block="block" :ref="el => setChildRef('tool_' + i, el)" />
         <ToolResult v-else-if="block.type === 'tool_result'" :block="block" :ref="el => setChildRef('result_' + i, el)" />
         <ThinkingBlock v-else-if="block.type === 'thinking'" :block="block" :ref="el => setChildRef('thinking_' + i, el)" />
@@ -81,6 +83,8 @@ import ReadToolBlock from './ReadToolBlock.vue';
 import AgentToolBlock from './AgentToolBlock.vue';
 import TodoWriteBlock from './TodoWriteBlock.vue';
 import TaskUpdateBlock from './TaskUpdateBlock.vue';
+import AskUserQuestionBlock from './AskUserQuestionBlock.vue';
+import TaskOutputBlock from './TaskOutputBlock.vue';
 
 const props = defineProps({
   blocks: {
