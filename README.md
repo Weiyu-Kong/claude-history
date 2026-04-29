@@ -55,7 +55,11 @@
 ### 安装依赖
 
 ```bash
-# 推荐 pnpm（也可使用 npm 或 cnpm）
+# 方式一：cnpm（国内网络推荐）
+npm install -g cnpm --registry=https://registry.npmmirror.com
+cnpm install
+
+# 方式二：pnpm
 pnpm install
 
 # 如果 Electron 下载慢，使用镜像
