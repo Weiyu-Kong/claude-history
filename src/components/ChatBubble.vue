@@ -29,6 +29,8 @@
           </div>
         </div>
         <TaskCreateBlock v-if="block.type === 'tool_use' && block.name === 'TaskCreate'" :block="block" />
+        <AgentToolBlock v-else-if="block.type === 'tool_use' && (block.name === 'Agent' || block.toolName === 'Agent')" :block="block" :ref="el => setChildRef('agent_' + i, el)" />
+        <TodoWriteBlock v-else-if="block.type === 'tool_use' && (block.name === 'TodoWrite' || block.toolName === 'TodoWrite')" :block="block" />
         <WriteToolBlock v-else-if="block.type === 'tool_use' && block.name === 'Write'" :block="block" />
         <EditToolBlock v-else-if="block.type === 'tool_use' && block.name === 'Edit'" :block="block" />
         <ReadToolBlock v-else-if="block.type === 'tool_use' && block.name === 'Read'" :block="block" />
@@ -51,6 +53,8 @@ import CommandBlock from './CommandBlock.vue';
 import WriteToolBlock from './WriteToolBlock.vue';
 import EditToolBlock from './EditToolBlock.vue';
 import ReadToolBlock from './ReadToolBlock.vue';
+import AgentToolBlock from './AgentToolBlock.vue';
+import TodoWriteBlock from './TodoWriteBlock.vue';
 
 const props = defineProps({
   blocks: {

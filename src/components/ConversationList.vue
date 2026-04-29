@@ -5,9 +5,7 @@
     </div>
 
     <div class="conversation-list-content">
-      <SkeletonLoader v-if="loading" :count="5" height="56px" />
-
-      <div v-else-if="!filteredConversations || filteredConversations.length === 0" class="empty-state">
+      <div v-if="!filteredConversations || filteredConversations.length === 0" class="empty-state">
         <p>{{ searchQuery ? '无匹配结果' : '暂无对话' }}</p>
       </div>
 
@@ -19,7 +17,7 @@
           @click="onSelect(conv)"
         >
           <div class="conv-main">
-            <span class="conv-title">{{ cleanTitle(conv.title) || '未命名' }}</span>
+            <span class="conv-title">{{ cleanTitle(titleMap[conv.filePath] || conv.title) || '未命名' }}</span>
             <span v-if="conv.fileSize > 50 * 1024 * 1024" class="large-file-badge">大文件</span>
           </div>
           <div class="conv-footer">
@@ -49,14 +47,16 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { cleanTitle } from '../utils/title-extractor.js';
+import { useConversationsStore } from '../stores/conversations.js';
 import SearchBar from './SearchBar.vue';
-import SkeletonLoader from './SkeletonLoader.vue';
 import ConfirmDialog from './ConfirmDialog.vue';
+
+const conversationsStore = useConversationsStore();
+const titleMap = conversationsStore.titleMap;
 
 const props = defineProps({
   conversations: Array,
-  selectedId: String,
-  loading: Boolean
+  selectedId: String
 });
 
 const emit = defineEmits(['select', 'search', 'delete']);

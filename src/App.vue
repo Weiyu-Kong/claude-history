@@ -24,7 +24,6 @@
         <ConversationList
           :conversations="currentConversations"
           :selectedId="conversationsStore.activeConversation?.filePath"
-          :loading="conversationsStore.loading"
           @select="handleConversationSelect"
           @delete="handleConversationDelete"
         />

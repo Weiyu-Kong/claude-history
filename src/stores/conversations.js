@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref, computed, reactive } from 'vue';
 import { extractTitle, cleanTitle } from '../utils/title-extractor.js';
 
 export const useConversationsStore = defineStore('conversations', () => {
@@ -8,6 +8,7 @@ export const useConversationsStore = defineStore('conversations', () => {
   const loading = ref(false);
   const skippedMessages = ref(0);
   const cache = new Map();
+  const titleMap = reactive({});
 
   const selectedConv = computed(() =>
     activeConversation.value?.messages?.find(m => m.id === selectedConvId.value) || null
@@ -53,7 +54,7 @@ export const useConversationsStore = defineStore('conversations', () => {
           if (textBlock?.text) {
             const title = cleanTitle(extractTitle(textBlock.text));
             if (title) {
-              conv.title = title;
+              titleMap[conv.filePath] = title;
               conversation.title = title;
               await window.electronAPI.updateTitle(conv.id, title);
             }
@@ -67,5 +68,5 @@ export const useConversationsStore = defineStore('conversations', () => {
 
   function clearActive() { activeConversation.value = null; }
 
-  return { selectedConvId, activeConversation, loading, skippedMessages, selectedConv, openConversation, clearActive };
+  return { selectedConvId, activeConversation, loading, skippedMessages, selectedConv, titleMap, openConversation, clearActive };
 });
