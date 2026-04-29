@@ -29,7 +29,7 @@
           </div>
         </div>
         <div v-else-if="block.type === 'image'" class="image-block">
-          <img v-if="block.imageUrl" :src="block.imageUrl" class="attached-image" />
+          <img v-if="block.imageUrl" :src="block.imageUrl" class="attached-image" @click="previewImage(block.imageUrl)" />
           <span v-else class="image-placeholder">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -50,6 +50,19 @@
         <ThinkingBlock v-else-if="block.type === 'thinking'" :block="block" :ref="el => setChildRef('thinking_' + i, el)" />
       </template>
     </div>
+    <Teleport to="body">
+      <transition name="lightbox">
+        <div v-if="previewUrl" class="image-lightbox" @click="closePreview" @keydown.escape="closePreview">
+          <img :src="previewUrl" class="lightbox-image" @click.stop />
+          <button class="lightbox-close" @click="closePreview">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </transition>
+    </Teleport>
   </div>
 </template>
 
@@ -115,6 +128,22 @@ const hasVisibleContent = computed(() => normalizedBlocks.value.length > 0);
 const roleLabel = computed(() => {
   return props.role === 'user' ? '用户' : 'Claude';
 });
+
+const previewUrl = ref(null);
+
+function previewImage(url) {
+  previewUrl.value = url;
+  document.addEventListener('keydown', onPreviewEscape);
+}
+
+function closePreview() {
+  previewUrl.value = null;
+  document.removeEventListener('keydown', onPreviewEscape);
+}
+
+function onPreviewEscape(e) {
+  if (e.key === 'Escape') closePreview();
+}
 
 function setChildRef(index, el) {
   if (el) {
@@ -307,5 +336,61 @@ defineExpose({ expandAll, collapseAll });
   background: var(--bg-tertiary);
   padding: 6px 12px;
   border-radius: var(--radius-sm);
+}
+
+.attached-image {
+  cursor: zoom-in;
+}
+</style>
+
+<style>
+.image-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.85);
+  cursor: zoom-out;
+}
+
+.lightbox-image {
+  max-width: 92vw;
+  max-height: 92vh;
+  object-fit: contain;
+  border-radius: 4px;
+  cursor: default;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.lightbox-enter-active,
+.lightbox-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.lightbox-enter-from,
+.lightbox-leave-to {
+  opacity: 0;
 }
 </style>

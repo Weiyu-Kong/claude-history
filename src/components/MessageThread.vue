@@ -430,13 +430,16 @@ function scrollToTop() {
 .thread-messages {
   flex: 1;
   overflow-y: auto;
-  padding: 24px;
+  padding: 24px 24px 0;
 }
 
 .messages-inner {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
+  min-height: 100%;
+  justify-content: flex-end;
+  padding-bottom: 24px;
 }
 
 .back-to-top-btn {
