@@ -60,7 +60,7 @@
               :granted="message.granted"
             />
             <FileSnapshot
-              v-else-if="message.type === 'file-history-snapshot'"
+              v-else-if="message.type === 'file-history-snapshot' && message.files && message.files.length > 0"
               :blocks="message"
             />
             <ChatBubble

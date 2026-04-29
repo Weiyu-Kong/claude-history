@@ -1,5 +1,5 @@
 <template>
-  <div :class="['chat-bubble', role]">
+  <div v-if="hasVisibleContent" :class="['chat-bubble', role]">
     <div class="bubble-header">
       <span class="avatar">
         <svg v-if="role === 'user'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -27,6 +27,17 @@
           <div v-else class="text-content">
             <div v-html="block.renderedHtml" class="markdown-content"></div>
           </div>
+        </div>
+        <div v-else-if="block.type === 'image'" class="image-block">
+          <img v-if="block.imageUrl" :src="block.imageUrl" class="attached-image" />
+          <span v-else class="image-placeholder">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+              <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+            图片
+          </span>
         </div>
         <TaskCreateBlock v-if="block.type === 'tool_use' && block.name === 'TaskCreate'" :block="block" />
         <AgentToolBlock v-else-if="block.type === 'tool_use' && (block.name === 'Agent' || block.toolName === 'Agent')" :block="block" :ref="el => setChildRef('agent_' + i, el)" />
@@ -83,13 +94,23 @@ const normalizedBlocks = computed(() => {
           renderedHtml: renderMarkdown(body)
         };
       }
+      return null;
     }
     if (block.type === 'tool_use' && block.toolName) {
       return { ...block, name: block.toolName };
     }
+    if (block.type === 'image') {
+      const source = block.source || {};
+      return {
+        ...block,
+        imageUrl: source.url || (source.data ? `data:${source.media_type || 'image/png'};base64,${source.data}` : null)
+      };
+    }
     return block;
-  });
+  }).filter(Boolean);
 });
+
+const hasVisibleContent = computed(() => normalizedBlocks.value.length > 0);
 
 const roleLabel = computed(() => {
   return props.role === 'user' ? '用户' : 'Claude';
@@ -264,5 +285,27 @@ defineExpose({ expandAll, collapseAll });
 .markdown-content :deep(a) {
   color: inherit;
   text-decoration: underline;
+}
+
+.image-block {
+  margin-top: 8px;
+}
+
+.attached-image {
+  max-width: 100%;
+  max-height: 400px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.image-placeholder {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  background: var(--bg-tertiary);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
 }
 </style>
