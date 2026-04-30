@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude History Viewer - 视觉方案对比</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; padding: 20px; }
+        h1 { text-align: center; margin-bottom: 30px; color: #333; }
+        .options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 1400px; margin: 0 auto; }
+        .option { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .option-header { padding: 15px; background: #333; color: white; text-align: center; font-weight: bold; }
+        .option-body { padding: 20px; }
+
+        /* Option 1: Clean Documentation Style */
+        .style1 { border-top: 4px solid #3b82f6; }
+        .style1 .hero { text-align: center; padding: 40px 20px; }
+        .style1 .hero h2 { color: #1a1a1a; font-size: 1.8em; margin-bottom: 10px; }
+        .style1 .hero p { color: #666; font-size: 1.1em; }
+        .style1 .badge { display: inline-block; background: #3b82f6; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85em; margin-top: 15px; }
+        .style1 .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 30px; }
+        .style1 .feature { background: #f8fafc; padding: 15px; border-radius: 8px; text-align: center; }
+        .style1 .feature-icon { font-size: 1.5em; margin-bottom: 8px; }
+        .style1 .feature h4 { color: #333; font-size: 0.95em; }
+        .style1 .feature p { color: #666; font-size: 0.8em; margin-top: 4px; }
+
+        /* Option 2: Modern Cards */
+        .style2 { border-top: 4px solid #10b981; }
+        .style2 .hero { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 40px 20px; border-radius: 8px; text-align: center; }
+        .style2 .hero h2 { font-size: 1.8em; margin-bottom: 10px; }
+        .style2 .hero p { opacity: 0.9; }
+        .style2 .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 30px; }
+        .style2 .feature { background: white; border: 1px solid #e5e7eb; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .style2 .feature-icon { width: 40px; height: 40px; background: #10b981; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; color: white; font-size: 1.2em; }
+        .style2 .feature h4 { color: #333; font-size: 1em; margin-bottom: 6px; }
+        .style2 .feature p { color: #666; font-size: 0.85em; }
+
+        /* Option 3: Compact Dense */
+        .style3 { border-top: 4px solid #8b5cf6; }
+        .style3 .hero { display: flex; align-items: center; gap: 30px; padding: 30px; background: white; border-radius: 8px; }
+        .style3 .hero-text { flex: 1; }
+        .style3 .hero h2 { color: #1a1a1a; font-size: 1.5em; margin-bottom: 8px; }
+        .style3 .hero p { color: #666; font-size: 0.95em; }
+        .style3 .hero-image { width: 200px; height: 120px; background: #1a1a2e; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #666; font-size: 0.8em; }
+        .style3 .features { margin-top: 25px; }
+        .style3 .features-title { color: #333; font-size: 1.1em; margin-bottom: 12px; font-weight: 600; }
+        .style3 .features-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+        .style3 .feature { background: #f8fafc; padding: 12px; border-radius: 6px; }
+        .style3 .feature-icon { font-size: 1.2em; }
+        .style3 .feature h4 { color: #333; font-size: 0.85em; margin-top: 6px; }
+
+        .section-title { text-align: center; margin: 30px 0 15px; color: #333; font-size: 1.3em; }
+    </style>
+</head>
+<body>
+    <h1>Claude History Viewer 站点视觉方案对比</h1>
+
+    <h2 class="section-title">Hero 区域布局对比</h2>
+    <div class="options">
+        <!-- Option 1: Clean Documentation -->
+        <div class="option style1">
+            <div class="option-header">方案 A：简约文档风</div>
+            <div class="option-body">
+                <div class="hero">
+                    <h2>Claude Code 对话历史的终极管理工具</h2>
+                    <p>支持 Markdown、代码高亮、主题切换和会话恢复</p>
+                    <span class="badge">立即下载</span>
+                </div>
+                <div class="features">
+                    <div class="feature">
+                        <div class="feature-icon">📁</div>
+                        <h4>三栏布局</h4>
+                        <p>项目 / 对话 / 详情</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">🎨</div>
+                        <h4>四种主题</h4>
+                        <p>简约白 / 深邃黑</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">⚡</div>
+                        <h4>会话恢复</h4>
+                        <p>一键继续对话</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Option 2: Modern Cards -->
+        <div class="option style2">
+            <div class="option-header">方案 B：现代卡片风</div>
+            <div class="option-body">
+                <div class="hero">
+                    <h2>Claude Code 对话历史的终极管理工具</h2>
+                    <p>支持 Markdown、代码高亮、主题切换和会话恢复</p>
+                </div>
+                <div class="features">
+                    <div class="feature">
+                        <div class="feature-icon">📁</div>
+                        <h4>三栏布局</h4>
+                        <p>项目 / 对话 / 详情</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">🎨</div>
+                        <h4>四种主题</h4>
+                        <p>简约白 / 深邃黑</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">⚡</div>
+                        <h4>会话恢复</h4>
+                        <p>一键继续对话</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Option 3: Compact Dense -->
+        <div class="option style3">
+            <div class="option-header">方案 C：紧凑高效风</div>
+            <div class="option-body">
+                <div class="hero">
+                    <div class="hero-text">
+                        <h2>Claude Code 对话历史的终极管理工具</h2>
+                        <p>支持 Markdown、代码高亮、主题切换和会话恢复</p>
+                    </div>
+                    <div class="hero-image">应用截图</div>
+                </div>
+                <div class="features">
+                    <div class="features-title">核心功能</div>
+                    <div class="features-grid">
+                        <div class="feature"><div class="feature-icon">📁</div><h4>三栏布局</h4></div>
+                        <div class="feature"><div class="feature-icon">🎨</div><h4>四种主题</h4></div>
+                        <div class="feature"><div class="feature-icon">⚡</div><h4>会话恢复</h4></div>
+                        <div class="feature"><div class="feature-icon">📝</div><h4>Markdown</h4></div>
+                        <div class="feature"><div class="feature-icon">🔍</div><h4>代码高亮</h4></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="section-title">配色方案对比</h2>
+    <div class="options">
+        <div class="option" style="border-top: 4px solid #3b82f6;">
+            <div class="option-header">配色 A：科技蓝</div>
+            <div class="option-body" style="text-align: center;">
+                <div style="display: inline-flex; gap: 10px; margin-top: 10px;">
+                    <div style="width: 60px;">
+                        <div style="width: 60px; height: 60px; background: #3b82f6; border-radius: 8px;"></div>
+                        <small style="color: #666;">#3b82f6</small>
+                    </div>
+                    <div style="width: 60px;">
+                        <div style="width: 60px; height: 60px; background: #1e40af; border-radius: 8px;"></div>
+                        <small style="color: #666;">#1e40af</small>
+                    </div>
+                    <div style="width: 60px;">
+                        <div style="width: 60px; height: 60px; background: #dbeafe; border-radius: 8px;"></div>
+                        <small style="color: #666;">#dbeafe</small>
+                    </div>
+                </div>
+                <p style="margin-top: 15px; color: #666; font-size: 0.9em;">专业、科技、可信赖</p>
+            </div>
+        </div>
+        <div class="option" style="border-top: 4px solid #10b981;">
+            <div class="option-header">配色 B：清新绿</div>
+            <div class="option-body" style="text-align: center;">
+                <div style="display: inline-flex; gap: 10px; margin-top: 10px;">
+                    <div style="width: 60px;">
+                        <div style="width: 60px; height: 60px; background: #10b981; border-radius: 8px;"></div>
+                        <small style="color: #666;">#10b981</small>
+                    </div>
+                    <div style="width: 60px;">
+                        <div style="width: 60px; height: 60px; background: #059669; border-radius: 8px;"></div>
+                        <small style="color: #666;">#059669</small>
+                    </div>
+                    <div style="width: 60px;">
+                        <div style="width: 60px; height: 60px; background: #d1fae5; border-radius: 8px;"></div>
+                        <small style="color: #666;">#d1fae5</small>
+                    </div>
+                </div>
+                <p style="margin-top: 15px; color: #666; font-size: 0.9em;">活力、自然、增长</p>
+            </div>
+        </div>
+        <div class="option" style="border-top: 4px solid #6366f1;">
+            <div class="option-header">配色 C：靛蓝紫</div>
+            <div class="option-body" style="text-align: center;">
+                <div style="display: inline-flex; gap: 10px; margin-top: 10px;">
+                    <div style="width: 60px;">
+                        <div style="width: 60px; height: 60px; background: #6366f1; border-radius: 8px;"></div>
+                        <small style="color: #666;">#6366f1</small>
+                    </div>
+                    <div style="width: 60px;">
+                        <div style="width: 60px; height: 60px; background: #4338ca; border-radius: 8px;"></div>
+                        <small style="color: #666;">#4338ca</small>
+                    </div>
+                    <div style="width: 60px;">
+                        <div style="width: 60px; height: 60px; background: #e0e7ff; border-radius: 8px;"></div>
+                        <small style="color: #666;">#e0e7ff</small>
+                    </div>
+                </div>
+                <p style="margin-top: 15px; color: #666; font-size: 0.9em;">创意、智慧、现代</p>
+            </div>
+        </div>
+    </div>
+
+    <p style="text-align: center; margin-top: 30px; color: #666;">
+        请选择一个布局方案（A/B/C）和一个配色方案（科技蓝/清新绿/靛蓝紫）
+    </p>
+</body>
+</html>
