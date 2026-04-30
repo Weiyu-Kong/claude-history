@@ -9,6 +9,7 @@ const { Store } = require('./store');
 const { scanProjects } = require('./file-scanner');
 const { parseStream } = require('./jsonl-parser');
 const { parseMessage } = require('./message-parser');
+const { extractTitleFromJsonl } = require('./title-extractor');
 
 // Lazy-initialize store to allow data directory creation
 let _store = null;
@@ -54,6 +55,12 @@ function registerIpcHandlers() {
       const store = getStore();
       const projects = scanProjects();
 
+      // Clean up legacy bad titles (from older versions that didn't strip XML tags)
+      const cleaned = store.cleanBadTitles();
+      if (cleaned > 0) {
+        console.log(`[ipc-handlers] Cleaned ${cleaned} bad titles`);
+      }
+
       for (const project of projects) {
         // Upsert project to SQLite
         store.upsertProject(project.name, project.path);
@@ -74,6 +81,23 @@ function registerIpcHandlers() {
 
         // Fetch enriched conversations from DB and convert to camelCase
         const dbConvs = store.getConversationsByProject(dbProject.id);
+
+        // Extract titles for conversations that don't have one
+        const noTitleConvs = dbConvs.filter(c => !c.title);
+        if (noTitleConvs.length > 0) {
+          for (const conv of noTitleConvs) {
+            try {
+              const title = await extractTitleFromJsonl(conv.file_path);
+              if (title && title !== 'Conversation ' + new Date().toISOString().slice(0, 10)) {
+                store.updateTitle(conv.id, title);
+                conv.title = title;
+              }
+            } catch (e) {
+              console.warn(`[ipc-handlers] Failed to extract title for ${conv.file_path}: ${e.message}`);
+            }
+          }
+        }
+
         project.conversations = dbConvs.map(conv => ({
           id: conv.id,
           filePath: conv.file_path,

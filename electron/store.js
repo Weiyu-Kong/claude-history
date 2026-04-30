@@ -105,6 +105,24 @@ class Store {
     return deleteProj.run(projectId);
   }
 
+  /**
+   * One-time migration: clear all titles so they are re-extracted
+   * with improved logic on next access.
+   * Uses a pragma flag to ensure this only runs once.
+   */
+  cleanBadTitles() {
+    // Check if migration already done
+    const done = this.db.pragma('main.user_version', { simple: true });
+    if (done >= 1) return 0;
+
+    const stmt = this.db.prepare('UPDATE conversations SET title = NULL');
+    const result = stmt.run();
+
+    // Mark migration as done
+    this.db.pragma('main.user_version = 1');
+    return result.changes;
+  }
+
   close() {
     this.db.close();
   }

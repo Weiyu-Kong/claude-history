@@ -38,6 +38,12 @@ export function cleanTitle(title) {
   // Remove any remaining XML-like tags with content
   cleaned = cleaned.replace(/<[\w-]+>[\s\S]*?<\/[\w-]+>/gi, '');
 
+  // Remove incomplete/truncated XML tags at end of string (e.g. " <command-na")
+  cleaned = cleaned.replace(/<[^>]*$/g, '');
+
+  // Remove any remaining self-standing or broken tags (e.g. "</command-m", "<tag>")
+  cleaned = cleaned.replace(/<\/?[\w-]*>?/g, '');
+
   // Strip markdown
   cleaned = stripMarkdown(cleaned);
 
@@ -59,16 +65,30 @@ export function cleanTitle(title) {
 export function extractTitle(text) {
   if (!text) return 'Conversation ' + new Date().toISOString().slice(0, 10);
 
-  // Parse command content to get just the body
-  const { body } = parseCommandContent(text);
+  // Parse command content to get structured parts and body
+  const { command, body } = parseCommandContent(text);
 
-  // If body is empty or just whitespace, use a fallback
-  const trimmedBody = body.trim();
-  if (!trimmedBody) {
+  // Determine the best title source: args > body > command name
+  let titleSource = '';
+
+  if (command && command.args && command.args.trim()) {
+    // Prefer command args (user's actual input) as title
+    titleSource = command.args.trim();
+  } else {
+    const trimmedBody = body.trim();
+    if (trimmedBody) {
+      titleSource = trimmedBody;
+    } else if (command?.name || command?.message) {
+      // Fallback to command name when no args or body
+      titleSource = (command.name || command.message).replace(/^\//, '');
+    }
+  }
+
+  if (!titleSource) {
     return 'Conversation ' + new Date().toISOString().slice(0, 10);
   }
 
-  const stripped = stripMarkdown(trimmedBody);
+  const stripped = stripMarkdown(titleSource);
   const normalized = stripped.replace(/\s+/g, ' ').trim();
 
   // Apply cleanTitle to remove any remaining tags
@@ -76,6 +96,13 @@ export function extractTitle(text) {
 
   let title = cleaned.slice(0, 50);
   title = title.replace(/[,.:;!?\s]+$/, '');
-  if (!title) return 'Conversation ' + new Date().toISOString().slice(0, 10);
+  if (!title) {
+    // If cleaned title is empty, fall back to command name
+    const cmdName = command?.name || command?.message;
+    if (cmdName) {
+      return cmdName.replace(/^\//, '');
+    }
+    return 'Conversation ' + new Date().toISOString().slice(0, 10);
+  }
   return title;
 }
