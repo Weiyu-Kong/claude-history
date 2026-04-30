@@ -79,3 +79,34 @@
 <div class="demo">
   <img src="/preview/demo.gif" alt="完整使用演示" />
 </div>
+
+## 快速开始
+
+### 安装依赖
+
+```bash
+# 方式一：cnpm（国内网络推荐）
+npm install -g cnpm --registry=https://registry.npmmirror.com
+cnpm install
+
+# 方式二：pnpm
+pnpm install
+
+# 如果 Electron 下载慢，使用镜像
+export ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/
+pnpm install
+```
+
+### 开发模式
+
+```bash
+pnpm electron:dev
+```
+
+### 构建应用
+
+```bash
+pnpm electron:build
+```
+
+构建完成后，应用会生成在 `out` 目录下。

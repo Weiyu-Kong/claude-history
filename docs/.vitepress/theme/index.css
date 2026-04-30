@@ -185,3 +185,22 @@
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
+
+.quickstart {
+  padding: 40px 24px;
+  background: #f9fafb;
+}
+
+.quickstart h2 {
+  text-align: center;
+  font-size: 1.8rem;
+  color: #1f2937;
+  margin-bottom: 32px;
+}
+
+.quickstart code {
+  background: #e5e7eb;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
