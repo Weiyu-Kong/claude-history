@@ -110,3 +110,10 @@ pnpm electron:build
 ```
 
 构建完成后，应用会生成在 `out` 目录下。
+
+---
+
+<div class="footer">
+  <p>MIT License · Claude History Viewer</p>
+  <p><a href="https://github.com/your-username/claude-history-viewer">GitHub</a></p>
+</div>
