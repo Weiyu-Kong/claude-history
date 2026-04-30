@@ -4,6 +4,9 @@ out/
 *.db
 .DS_Store
 
+# Vitepress cache
+docs/.vitepress/cache/*
+
 # Claude history viewer specific
 *.log
 npm-debug.log*
