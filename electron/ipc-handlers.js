@@ -3,6 +3,7 @@
 const { ipcMain, shell } = require('electron');
 const { exec } = require('child_process');
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 
 const { Store } = require('./store');
@@ -13,9 +14,13 @@ const { extractTitleFromJsonl } = require('./title-extractor');
 
 // Lazy-initialize store to allow data directory creation
 let _store = null;
+function getHomeDir() {
+  return process.env.HOME || process.env.USERPROFILE || os.homedir();
+}
+
 function getStore() {
   if (!_store) {
-    const dbPath = path.join(process.env.HOME || '/home/user', '.claude', 'history-viewer.db');
+    const dbPath = path.join(getHomeDir(), '.claude', 'history-viewer.db');
     const dbDir = path.dirname(dbPath);
     if (!fs.existsSync(dbDir)) {
       fs.mkdirSync(dbDir, { recursive: true });
@@ -240,7 +245,7 @@ function registerIpcHandlers() {
     try {
       const store = getStore();
       // projectId is actually the folder name (e.g., "-Users-edy-my-space-claude-history")
-      const projectsDir = path.join(process.env.HOME || '/home/user', '.claude', 'projects');
+      const projectsDir = path.join(getHomeDir(), '.claude', 'projects');
       const projectPath = path.join(projectsDir, projectId);
 
       // Delete the actual project folder from disk

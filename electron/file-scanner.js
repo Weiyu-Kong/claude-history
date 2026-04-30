@@ -1,9 +1,14 @@
 'use strict';
 
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 
-const PROJECTS_DIR = path.join(process.env.HOME || '/home/user', '.claude', 'projects');
+function getHomeDir() {
+  return process.env.HOME || process.env.USERPROFILE || os.homedir();
+}
+
+const PROJECTS_DIR = path.join(getHomeDir(), '.claude', 'projects');
 
 /**
  * Scan a projects directory for subdirectories (projects) and .jsonl files (conversations)
