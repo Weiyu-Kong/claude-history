@@ -157,3 +157,31 @@
   color: #6b7280;
   line-height: 1.5;
 }
+
+.screenshots {
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.screenshot-primary img {
+  max-width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.caption {
+  margin-top: 12px;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.demo {
+  padding: 0 24px 40px;
+  text-align: center;
+}
+
+.demo img {
+  max-width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}

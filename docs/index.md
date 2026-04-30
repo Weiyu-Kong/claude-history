@@ -64,3 +64,18 @@
     </div>
   </div>
 </div>
+
+## 截图预览
+
+<div class="screenshots">
+  <div class="screenshot-primary">
+    <img src="/preview/3.png" alt="Claude History Viewer 三栏布局" />
+    <p class="caption">三栏布局 - 项目列表 / 对话列表 / 消息详情</p>
+  </div>
+</div>
+
+## 完整演示
+
+<div class="demo">
+  <img src="/preview/demo.gif" alt="完整使用演示" />
+</div>
